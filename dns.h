@@ -47,7 +47,7 @@ int dns_run(dns_engine *engine); // fork?NON! thread
 void dns_quit(dns_engine *engine); //TODO struct dns_engine
 
 // request_parser.h
-dns *request_parser(void *request);
+dns *request_parser(void *request, size_t buf_size);
 
 // client_handler.h
 dns *get_request(dns_engine *engine); // queue add chez le networkwrapper?
