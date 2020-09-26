@@ -89,7 +89,16 @@ void* init_serv(dns_engine *engine, char *ip, uint16_t port)
   engine->sockets = sockets;
 }
 
-void* dns_get(dns_engine *engine)
+ssize_t dns_get(dns_engine *engine, char **ptr, int socket)
 {
-  
+  char *buf = malloc(sizeof(char) * 4096);
+  ssize_t size = 0;
+  size = read(socket, buf, 4096);
+  if (size <= 0)
+  {
+    free(buf);
+    buf = NULL;
+  }
+  *ptr = buf;
+  return size;
 }
