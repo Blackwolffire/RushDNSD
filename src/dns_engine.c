@@ -1,9 +1,12 @@
+#define _POSIX_C_SOURCE 200809L
 #include "dns.h"
 #include "my_libc.h"
+#include "dns_engine.h"
+
 
 int error_file(char *msg)
 {
-    dprintf(stderr, "error file : %s", msg);
+    dprintf(STDERR_FILENO, "error file : %s", msg);
     _exit(12);
 }
 
@@ -23,8 +26,9 @@ bin_tree *create_tree(FILE *file)
     int SOA = 0;
     char *current_line = NULL;
     bin_tree *tree = NULL;
+    uint64_t len = 0;
 
-    while (getline(&current_line, 0, file) != -1)
+    while (getline(&current_line, &len, file) != -1)
     {
         zone *current_zone = get_zone(current_line); 
         if (current_zone->type == SOA_type)
@@ -41,53 +45,64 @@ bin_tree *create_tree(FILE *file)
     return tree;
 }
 
+bin_tree *create_node(char *name)
+{
+    int name_size = strlen(name) + 1;
+    bin_tree *res = my_malloc(sizeof(bin_tree));
+    res->name = my_malloc(name_size);
+    strncpy(res->name, name, name_size);
+    res->nb_zone = 0;
+    return res;
+}
 
 int add_to_tree(zone *new_zone, bin_tree *tree)
 {
-    char **array;
-    array[0] = strtok(new_zone->name, ".");
-    int i = 1;
-    while (1)
+    char *array[20];
+    int i = 0;
+    array[i] = strtok(new_zone->name, ".");
+    while (array[i])
     {
-        array[i] = strtok(NULL, ".");
-        if (!array[i])
-            break;
         i++;
+        array[i] = strtok(NULL, ".");
     }
-
+    int j = i - 1;
     if (!tree)
-    {
-        bin_tree *current = tree;
+        tree = create_node(array[j]);    
+  
+    bin_tree *current = tree;
 
-        for (int j = i -1; j >= 0; j--)
+    while (j >= 0)
+    {
+        while (current && strcmp(current->name, array[j]) != 0) //while current
         {
-            current = my_malloc(sizeof(bin_tree));
-            current->name = my_malloc(strlen(array[j]) + 1);
-            strncpy(current->name, array[j], strlen(array[j]) + 1);
-            if (j == 0)
-            {
-                current->nb_zone = 1;
-                current->zone_list = my_malloc(sizeof(zone*));
-                *(current->zone_list) = new_zone;
-            }
+            if (current->bro)
+                current = current->bro;
             else
-                current->nb_zone = 0;
+            {
+                current->bro = create_node(array[j]);
+                current = current->bro;
+            }
+        }
+        if (j == 0)
+        {
+            current->zone_list = realloc(current->zone_list, (current->nb_zone + 1) * sizeof(zone*));
+            current->zone_list[current->nb_zone] = new_zone;
+            current->nb_zone += 1;
+            return 0;
+        }
+        else if (current && current->son)
+        {
+            j--;
+            current = current->son;
+        }
+        else
+        {
+            j--;
+            current->son = create_node(array[j]);
+            current = current->son;
         }
     }
-
-    //for (int j = i -1; j >= 0; j--)
-    //{
-    
-    //}
-    //create array of pointer + counter
-    //parcours liste à l'envers
-    //si noeuc null on créé
-    //garder noeud supperieur
-    //gauche ou droite
-    //add avec malloc
-    //bin_tree *node = my_malloc(sizeof(bin_tree));
     return 0;
-
 }
 
 zone *get_zone(char *line)
@@ -153,5 +168,6 @@ SOA_data *get_soa_struct(char *word)
 }
 
 int main(){
+    bin_tree *arbre = load_zone("test_file");
     return 0;
 }

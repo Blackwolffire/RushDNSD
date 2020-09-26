@@ -1,11 +1,13 @@
 #pragma once
 
-#include "dns.h"
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/epoll.h>
+#include <unistd.h>
+
+#include "dns.h"
 
 #define SOA_type (6)
 #define A_type (1)
@@ -27,6 +29,11 @@ struct dns_engine {
     uint16_t port;
     int *sockets;
     char **ip;
+    int nbip;
+    int *epfds; //epoll file descriptors
+    int *nbfd; // number of socket by epoll
+    struct epoll_event *ep_events; // epoll events
+    struct epoll_event **events;
 };
 
 typedef struct bin_tree bin_tree;
@@ -51,7 +58,7 @@ struct SOA_data {
 
 
 int error_file(char *msg);
-bin_tree *load_zone(char *filename);
+bin_tree *load_zone(const char *filename);
 bin_tree *create_tree(FILE *file);
 int add_to_tree(zone *new_zone, bin_tree *tree);
 zone *get_zone(char *line);
