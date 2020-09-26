@@ -14,7 +14,7 @@ struct answer {
         char *rname;
         uint16_t rtype;
         uint16_t rclass;
-        uint32 ttl;
+        uint32_t ttl;
         uint16_t rdlen;
         char *rdata; //char [rdlen]rdata
 };
