@@ -12,6 +12,6 @@ dns *anayser(dns *request){
 		// valid request
 		return make_valid_response(request);
 	}
-	return NULL;
+	return request;
 }
 
