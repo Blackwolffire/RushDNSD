@@ -5,7 +5,7 @@
 #include "../my_libc.h"
 
 
-static void list_print(struct linked_list_node *l){
+static void list_print(struct linked_list *l){
     if (!(l->first))  //List is empty
         return;
     for (struct linked_list_node *ride = l->first; ride; ride = ride->next){
