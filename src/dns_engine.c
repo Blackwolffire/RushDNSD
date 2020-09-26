@@ -1,5 +1,6 @@
 #include "dns.h"
 #include "my_libc.h"
+#include "dns_engine.h"
 
 int error_file(char *msg)
 {

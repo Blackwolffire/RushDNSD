@@ -1,5 +1,6 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -20,7 +21,7 @@ int check_ip(char *ip)
   return -1;
 }
 
-void* init_serv(dns_engine *engine, char *ip, uint16_t port)
+dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
 {
   size_t len, nbip;
   int *sockets;
@@ -42,7 +43,7 @@ void* init_serv(dns_engine *engine, char *ip, uint16_t port)
       ip[i] = 0;
       engine->ip[j++] = ip + i + 1;
     }
-  engine->ip[j] = ip[i];
+  engine->ip[j] = ip + i;
 
   engine->nbip = nbip;
   for (i = 0; i < nbip; ++i)
@@ -87,9 +88,11 @@ void* init_serv(dns_engine *engine, char *ip, uint16_t port)
     engine->nbip = 0;
   }
   engine->sockets = sockets;
+  engine->port = port;
+  return engine;
 }
 
-ssize_t dns_get(dns_engine *engine, char **ptr, int socket)
+ssize_t dns_get(char **ptr, int socket)
 {
   char *buf = malloc(sizeof(char) * 4096);
   ssize_t size = 0;
@@ -101,4 +104,21 @@ ssize_t dns_get(dns_engine *engine, char **ptr, int socket)
   }
   *ptr = buf;
   return size;
+}
+
+ssize_t dns_send(int socket, char *pck, size_t size)
+{
+  ssize_t written = write(socket, pck, size);
+  return written;
+}
+
+void close_serv(dns_engine *engine)
+{
+  for (int i=0; i < engine->nbip; ++i)
+    close(engine->sockets[i]);
+  free(engine->sockets);
+  engine->sockets = NULL;
+  free(engine->ip);
+  engine->ip = NULL;
+  engine->nbip = 0;
 }

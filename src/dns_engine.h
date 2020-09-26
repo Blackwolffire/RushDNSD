@@ -27,6 +27,7 @@ struct dns_engine {
     uint16_t port;
     int *sockets;
     char **ip;
+    int nbip;
 };
 
 
