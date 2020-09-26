@@ -15,6 +15,7 @@ static bool collector_empty(){
 }
 
 // Prints all pointers contained in collector
+// Used for debug purposes
 static void collector_print(){
     if (collector_empty())
         return;
@@ -81,14 +82,4 @@ void collector_exit(){
 	}
     }
     free(collector);
-}
-
-int main(int argc, char **argv){
-    collector_init();
-    int *i = collector_malloc(sizeof(int));
-    *i = 125;
-    collector_print();
-    //collector_free(i);
-    collector_exit();
-    return 0;
 }
