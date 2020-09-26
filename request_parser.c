@@ -19,6 +19,24 @@ int size_name(char *name, int index, char *request_dns_name)
 	return index - save_index;
 }
 
+int answer_auth_add(char *request, answer *dns_a, int accu, int count)
+{
+  for (int j = 0; j < count; j = j + 1)
+  {
+	dns_a->rname = malloc(1024);
+	int len_rname = size_name(request, accu, dns_a->rname);
+	accu = accu + len_rname;
+	dns_a->rtype = (uint16_t)request[accu];
+	dns_a->rclass = (uint16_t)request[2 + accu];
+	dns_a->ttl =(uint32_t) request[4 + accu];
+	dns_a->rdlen = (uint16_t)request[8 + accu];
+
+	int len_rdata = size_name(request, (10 + accu), dns_a->rdata);
+	accu = accu + len_rdata + 10;
+	dns_a = dns_a + 1;
+  }
+  return accu;
+}
 
 dns *request_parser(void *request_void, int buffer_size)
 {
@@ -29,11 +47,10 @@ dns *request_parser(void *request_void, int buffer_size)
 	}
 
 	// allocate dns request structure
-	dns *request_dns = malloc(1500);
+	dns *request_dns = malloc(sizeof(struct dns *));
 
 	//cast void * in raw of Bytes
 	char *request = (char *)request_void;
-	// request_dns = (*request_dns)request;
 
 	// HEAD BLOCK
 	request_dns->head.id = (uint16_t)request[0];
@@ -43,73 +60,53 @@ dns *request_parser(void *request_void, int buffer_size)
 	request_dns->head.nscount = (uint16_t)request[8];
 	request_dns->head.arcount = (uint16_t)request[10];
 
-        int accu = 0;
+	int accu = 12;
 
 	// QUESTION BLOCK
 	if (request_dns->head.qdcount == 0)
-	{
 		request_dns->quest = NULL;
-	}
 	else
 	{
+		request_dns->quest = malloc(sizeof(struct question *));
+
 		int len_qname = size_name(request,12,request_dns->quest->qname);
-		accu = len_qname;
-		request_dns->quest->qtype = (uint16_t)request[12 + accu];
-		request_dns->quest->qclass = (uint16_t)request[14 + accu];
+		accu = accu + len_qname;
+		request_dns->quest->qtype = (uint16_t)request[accu];
+		request_dns->quest->qclass = (uint16_t)request[2 + accu];
+		accu = accu + 4;
 	}
+
 
 	// ANSWER BLOCK
 	if (request_dns->head.ancount == 0)
-	{
 		request_dns->answer = NULL;
-	}
 	else
 	{
-		int len_rname = size_name(request, (16 + accu), request_dns->answer->rname);
-		accu = accu + len_rname;
-		request_dns->answer->rtype = (uint16_t)request[16 + accu];
-		request_dns->answer->rclass = (uint16_t)request[18 + accu];
-		request_dns->answer->ttl =(uint32_t) request[20 + accu];
-		request_dns->answer->rdlen = (uint16_t)request[24 + accu];
+		request_dns->answer = malloc(sizeof(struct answer *) * request_dns->head.ancount);
 
-		int len_rdata = size_name(request, (26 + accu), request_dns->answer->rdata);
-		accu = accu + len_rdata;
+		answer *dns_save_answer = request_dns->answer; 
+		accu = answer_auth_add(request, request_dns->answer, accu, request_dns->head.ancount);
+		request_dns->answer = dns_save_answer;
 	}
-
 	// AUTHORITY BLOCK
 	if (request_dns->head.nscount == 0)
-	{
 		request_dns->authority = NULL;
-	}
 	else
 	{
-		int len_rname_auth = size_name(request, (26 + accu), request_dns->authority->rname);
-		accu = accu + len_rname_auth;
-		request_dns->authority->rtype = (uint16_t)request[26 + accu];
-		request_dns->authority->rclass = (uint16_t)request[28 + accu];
-		request_dns->authority->ttl = (uint32_t)request[30 + accu];
-		request_dns->authority->rdlen = (uint16_t)request[34 + accu];
-
-		int len_rdata_auth = size_name(request, (36 + accu), request_dns->authority->rdata);
-		accu = accu + len_rdata_auth;
+		request_dns->authority = malloc(sizeof(struct answer *) * request_dns->head.nscount);
+		answer *dns_save_authority = request_dns->authority;
+		accu = answer_auth_add(request, request_dns->authority, accu, request_dns->head.nscount);
+		request_dns->authority = dns_save_authority;
 	}
-
 	// ADDITIONAL BLOCK
 	if (request_dns->head.nscount == 0)
-	{
 		request_dns->additional = NULL;
-	}
 	else
 	{
-		int len_rname_add = size_name(request, (36 + accu), request_dns->additional->rname);
-		accu = accu + len_rname_add;
-		request_dns->additional->rtype = (uint16_t)request[36 + accu];
-		request_dns->additional->rclass = (uint16_t)request[38 + accu];
-		request_dns->additional->ttl = (uint32_t)request[40 + accu];
-		request_dns->additional->rdlen = (uint16_t)request[44 + accu];
-
-		int len_rdata_add = size_name(request, (46 + accu), request_dns->additional->rdata);
-		accu = accu + len_rdata_add;
+		request_dns->additional = malloc(sizeof(struct answer *) * request_dns->head.arcount);
+		answer *dns_save_additional = request_dns->additional;
+		accu = answer_auth_add(request, request_dns->additional, accu, request_dns->head.arcount);
+		request_dns->additional = dns_save_additional;
 	}
 
 	free(request);
@@ -118,37 +115,38 @@ dns *request_parser(void *request_void, int buffer_size)
 
 void printer(dns *dns_paquet)
 {
-	printf("id : %d\n",dns_paquet->head.id);
-	printf("flags : %d\n",dns_paquet->head.flags);
-	printf("qdcount : %d\n", dns_paquet->head.qdcount);
-	printf("ancount : %d\n", dns_paquet->head.ancount);
-	printf("nscount : %d\n", dns_paquet->head.nscount);
-	printf("arcount : %d\n", dns_paquet->head.arcount);
+	printf("header block :\n");
+	 printf("  id : %d\n",dns_paquet->head.id);
+	 printf("  flags : %d\n",dns_paquet->head.flags);
+	 printf("  qdcount : %d\n", dns_paquet->head.qdcount);
+	 printf("  ancount : %d\n", dns_paquet->head.ancount);
+	 printf("  nscount : %d\n", dns_paquet->head.nscount);
+	 printf("  arcount : %d\n", dns_paquet->head.arcount);
 	printf("question block :\n");
-	printf("  qname : %s", dns_paquet->quest->qname);
-	printf("  qtype : %d", dns_paquet->quest->qtype);
-	printf("  qclass : %d", dns_paquet->quest->qclass);
+	 printf("  qname : %s", dns_paquet->quest->qname);
+	 printf("  qtype : %d", dns_paquet->quest->qtype);
+	 printf("  qclass : %d", dns_paquet->quest->qclass);
 	printf("answer block :\n");
-	printf("  rname : %s", dns_paquet->answer->rname);
-	printf("  rtype : %d", dns_paquet->answer->rtype);
-	printf("  rclass : %d", dns_paquet->answer->rclass);
-	printf("  ttl : %d", dns_paquet->answer->ttl);
-	printf("  rdlen : %d", dns_paquet->answer->rdlen);
-	printf("  rdata : %s", dns_paquet->answer->rdata);
+	 printf("  rname : %s", dns_paquet->answer->rname);
+	 printf("  rtype : %d", dns_paquet->answer->rtype);
+	 printf("  rclass : %d", dns_paquet->answer->rclass);
+	 printf("  ttl : %d", dns_paquet->answer->ttl);
+	 printf("  rdlen : %d", dns_paquet->answer->rdlen);
+	 printf("  rdata : %s", dns_paquet->answer->rdata);
 	printf("authority block :\n");
-	printf("  rname : %s", dns_paquet->authority->rname);
-	printf("  rtype : %d", dns_paquet->authority->rtype);
-	printf("  rclass : %d", dns_paquet->authority->rclass);
-	printf("  ttl : %d", dns_paquet->authority->ttl);
-	printf("  rdlen : %d", dns_paquet->authority->rdlen);
-	printf("  rdata : %s", dns_paquet->authority->rdata);
+	 printf("  rname : %s", dns_paquet->authority->rname);
+	 printf("  rtype : %d", dns_paquet->authority->rtype);
+	 printf("  rclass : %d", dns_paquet->authority->rclass);
+	 printf("  ttl : %d", dns_paquet->authority->ttl);
+	 printf("  rdlen : %d", dns_paquet->authority->rdlen);
+	 printf("  rdata : %s", dns_paquet->authority->rdata);
 	printf("additional block :\n");
-	printf("  rname : %s", dns_paquet->additional->rname);
-	printf("  rtype : %d", dns_paquet->additional->rtype);
-	printf("  rclass : %d", dns_paquet->additional->rclass);
-	printf("  ttl : %d", dns_paquet->additional->ttl);
-	printf("  rdlen : %d", dns_paquet->additional->rdlen);
-	printf("  rdata : %s", dns_paquet->additional->rdata);
+	 printf("  rname : %s", dns_paquet->additional->rname);
+	 printf("  rtype : %d", dns_paquet->additional->rtype);
+	 printf("  rclass : %d", dns_paquet->additional->rclass);
+	 printf("  ttl : %d", dns_paquet->additional->ttl);
+	 printf("  rdlen : %d", dns_paquet->additional->rdlen);
+	 printf("  rdata : %s", dns_paquet->additional->rdata);
 }
 
 
