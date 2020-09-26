@@ -40,7 +40,7 @@ int main ()
  dns_test->authority->rdata = malloc(13);
  dns_test->authority->rdata = "205.35.65.25";
  //additional
- dns_test->additional = malloc(15);
+ dns_test->additional->rname = malloc(15);
  dns_test->additional->rname = "www.google.com";
  dns_test->additional->rtype = 1;
  dns_test->additional->rclass = 1;

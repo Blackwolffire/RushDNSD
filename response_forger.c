@@ -48,11 +48,22 @@ int compute_strings_length(dns *ans) {
 }
 
 
-void *forge_header(dns *ans, dns_header *h) {
-    *h = ans->head;
-    // little endian to big endian : htons
-    h++;
-    return h;
+void *forge_header(dns *ans, void *header) {
+    uint16_t *h_16b = header;
+    *h_16b = ans->head.id;
+    h_16b++;
+    *h_16b = ans->head.flags;
+    h_16b++;
+    *h_16b = ans->head.qdcount;
+    h_16b++;
+    *h_16b = ans->head.ancount;
+    h_16b++;
+    *h_16b = ans->head.nscount;
+    h_16b++;
+    *h_16b = ans->head.arcount;
+    h_16b++;
+
+    return h_16b;
 }
 
 
