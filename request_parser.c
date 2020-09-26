@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+//fill qname,rname and rdata fields with padding
+//return size of field
 int size_name(char *name, int index, char *request_dns_name)
 {
  int save_index = index;
@@ -20,11 +22,12 @@ int size_name(char *name, int index, char *request_dns_name)
 }
 
 
-
-dns *request_parser(void *request_void, size_t buf_size)
+dns *request_parser(void *request_void)
 {
 // allocate dns request structure
 dns *request_dns = malloc(1500);
+
+//cast void * in raw of Bytes
 char *request = (char *)request_void;
 // request_dns = (*request_dns)request;
 
@@ -79,6 +82,7 @@ free(request);
 return request_dns;
 }
 
+//display dns_paquet
 void printer(dns *dns_paquet)
 {
  printf("id : %d\n",dns_paquet->head.id);
