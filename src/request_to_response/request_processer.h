@@ -10,6 +10,12 @@ uint16_t get_data_size(uint16_t type, void *data);
 // Set header flag tc and rcode.
 dns *set_header_flags(dns *response, size_t tc, size_t rcode);
 
+// Set header flag rcode.
+dns *set_rcode_flag(dns *response, size_t rcode);
+
+// Set header flag tc.
+dns *set_tc_flag(dns *response, size_t tc);
+
 // Copy a question values.
 question *copy_question(question *quest, question *question_cpy);
 

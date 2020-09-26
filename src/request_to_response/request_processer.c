@@ -23,15 +23,29 @@ uint16_t get_data_size(uint16_t type, void *data){
 	}
 }
 
+dns *set_rcode_flag(dns *response, size_t rcode){
+	//set rcode to 0
+	uint16_t flags = response->head.flags;
+	uint16_t rcode_mask = 15;
+	flags = flags & (~rcode_mask);
+	//add new rdcode
+	response->head.flags = flags + rcode;
+	return response;		
+}
+
+dns *set_tc_flag(dns *response, size_t tc){
+	uint16_t flags = response->head.flags;
+	uint16_t tc_mask = (tc > 0) << 9;
+	response->head.flags = flags | tc_mask;
+	return response;
+}
+
 dns *set_header_flags(dns *response, size_t tc, size_t rcode){
 	uint16_t flags = 34048; // 1000 0101 0000 0000
-	
 	if (tc == 1)
 		flags += 512; // 0000 00100 0000 0000
-
 	flags += rcode;
 	response->head.flags = flags;
-
 	return response;
 }
 
@@ -118,6 +132,26 @@ dns *make_response(dns *request, dns *response){
 			// set answer to type depending (Non existant/ Emtynon terminal/ zone inconnue)
 		}
 	}
+	// set header falgs
+	//
+	// rcode :
+	// 	0: NOERROR : if no error
+	// 	1: format error in querry
+	// 	2: server fail 
+	// 	3: NXDOMAIN :Name does not exist
+	// 	4: Not implented, server does not support query type
+	// 	5: reffused ->zone inconu
+	//
+	//	Only accept type:
+	//		SOA 6,
+	//		A 1,
+	//		AAAA 28,
+	//		CNAME 5,
+	//		TXT 16,
+	//
+	//		class:
+	//		1 : IN 
+	//
 	return response;
 }
 
@@ -138,7 +172,7 @@ dns *make_valid_response(dns *request){
 	}
 	response->quest = questions;
 
-	// fill responces 
+	// fill responce and headers 
 	if(make_response(request, response) == NULL){
 		free(response->quest);
 		free(response->answer);
@@ -147,5 +181,6 @@ dns *make_valid_response(dns *request){
 		free(response);
 		return NULL;
 	}
+
 	return response;
 }
