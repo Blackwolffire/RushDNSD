@@ -4,4 +4,4 @@
 #include <unistd.h>
 #include <stddef.h>
 
-void *my_malloc(size_t size);
+void *my_malloc(int size);
