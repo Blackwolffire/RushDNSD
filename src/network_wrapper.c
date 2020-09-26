@@ -1,7 +1,7 @@
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <strings.h>
-#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -28,7 +28,7 @@ int unblock_sock(int fd)
   flags = fcntl(fd, F_GETFL, 0);
   if (flags == -1)
     return -1;
-  flags |= O_NON_BLOCK;
+  flags |= O_NONBLOCK;
   tmp = fcntl(fd, F_SETFL, flags);
   if (tmp == -1)
     return -1;
@@ -196,7 +196,7 @@ int fetch_clients(dns_engine *eng)
         if (unblock_sock(clfd))
           return -1;
         eng->ep_events[i].events = EPOLLIN|EPOLLET;
-        eng->ep_events[i].events.data.fd = clfd;
+        eng->ep_events[i].data.fd = clfd;
         if (epoll_ctl(eng->epfds[i], EPOLL_CTL_ADD, clfd, eng->ep_events + i) < 0)
           return -1;
         eng->nbfd[i] += 1;
@@ -208,11 +208,12 @@ int fetch_clients(dns_engine *eng)
 
 ssize_t dns_get(char **ptr, int socket)
 {
-  size_t cap = 4096;
+  ssize_t cap = 4096;
   char *buf = malloc(sizeof(char) * cap);
   char *tbuf;
   ssize_t size = 0;
   ssize_t tmp;
+
 
   while ((tmp = read(socket, buf + size, cap / 2))){
     if (tmp <= 0)
@@ -222,7 +223,7 @@ ssize_t dns_get(char **ptr, int socket)
     }
     size += tmp;
     if (size >= cap){
-      tbuf = realloc(buf, cap * 2)
+      tbuf = realloc(buf, cap * 2);
       if (!tbuf){
         free(buf);
         return -1;
