@@ -1,6 +1,10 @@
 #pragma once
+#include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
 
 #include "dns_engine.h"
+
 
 typedef struct question question;
 struct question {
@@ -14,7 +18,7 @@ struct answer {
         char *rname;
         uint16_t rtype;
         uint16_t rclass;
-        uint32 ttl;
+        uint32_t ttl;
         uint16_t rdlen;
         char *rdata; //char [rdlen]rdata
 };
@@ -31,11 +35,11 @@ struct dns_header {
 
 typedef struct dns dns;
 struct dns {
-        header head;
+        dns_header head;
         question *quest;
-        an_au_add *answer;
-        an_au_add *authority;
-        an_au_add *additional;
+        answer *answer;
+        answer *authority;
+        answer *additional;
 };
 
 

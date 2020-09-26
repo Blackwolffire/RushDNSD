@@ -2,6 +2,14 @@
 
 #include "dns.h"
 
+typedef struct zone zone;
+struct zone {
+    char *name;
+    uint16_t type;
+    int ttl;
+    void *data; //soit char*, soit struct SOA_data*
+};
+
 typedef struct dns_engine dns_engine;
 struct dns_engine {
     zone *dns_zone;
@@ -10,6 +18,7 @@ struct dns_engine {
     char **ip;
 };
 
+typedef struct bin_tree bin_tree;
 struct bin_tree {
     bin_tree *son; //gauche
     bin_tree *bro; //droit
@@ -17,14 +26,6 @@ struct bin_tree {
     zone *zone_list; //@ du premier
     size_t nb_zone;
 }
-
-typedef struct zone zone;
-struct zone {
-    char *name;
-    uint16_t type;
-    int ttl;
-    void *data; //soit char*, soit struct SOA_data*
-};
 
 typedef struct SOA_data SOA_data;
 struct SOA_data {
