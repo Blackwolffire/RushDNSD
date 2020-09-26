@@ -1,0 +1,31 @@
+#pragma once
+#include "analyser.h"
+
+// Finds zones corresponding to the request.
+zone *find_zone(char *name, uint16_t type);
+
+// Gets the data type depending on type.
+uint16_t get_data_size(uint16_t type, void *data);
+
+// Set header flag tc and rcode.
+dns *set_header_flags(dns *response, size_t tc, size_t rcode);
+
+// Copy a question values.
+question *copy_question(question *quest, question *question_cpy);
+
+// free allocated variables in a question.
+void free_question(question *question);
+
+// Copy consecutive questions.
+question *copy_questions(question *quest, uint16_t question_nb);
+
+// Free allocated variables in a number of consecutive questions.
+void free_questions(question *questions, uint16_t question_nb);
+
+// Makes dns responses in dns_response depending on dns_request 
+dns *make_response(dns *request, dns *response);
+
+// Make avaidresponse
+dns *make_valid_response(dns *request);
+
+// Make response fonction for theother  type of responses (errors).
