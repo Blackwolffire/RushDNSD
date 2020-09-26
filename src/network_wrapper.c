@@ -22,6 +22,19 @@ int check_ip(char *ip)
   return -1;
 }
 
+int unblock_sock(int fd)
+{
+  int flags, tmp;
+  flags = fcntl(fd, F_GETFL, 0);
+  if (flags == -1)
+    return -1;
+  flags |= O_NON_BLOCK;
+  tmp = fcntl(fd, F_SETFL, flags);
+  if (tmp == -1)
+    return -1;
+  return 0;
+}
+
 dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
 {
   size_t len, nbip;
@@ -106,6 +119,7 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
     ipcheck = check_ip(engine->ip[i]);
     domain = ipcheck == 1? AF_INET : AF_INET6;
     sockets[i] = socket(domain, SOCK_STREAM, 0);
+    unblock_sock(sockets[i]);
     bzero(&addr, sizeof(addr));
     addr.sin_family = domain;
     addr.sin_addr.s_addr = inet_addr(engine->ip[i]);
@@ -162,17 +176,62 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
 }
 
 
+int fetch_clients(dns_engine *eng)
+{
+  int nbfd;
+  int clfd;
+  struct sockaddr_storage cl_addr;
+  socklen_t addr_size;
+
+  for (int i=0; i < eng->nbip; ++i){
+    nbfd = epoll_wait(eng->epfds[i], eng->events[i], eng->nbfd[i], -1);
+    if (nbfd == -1)
+      return -1;
+    for (int j=0; j < nbfd; ++j){
+      if (eng->events[i][j].data.fd == eng->sockets[i]){
+        addr_size = sizeof(cl_addr);
+        clfd = accept(eng->events[i][j].data.fd, (struct sockaddr*)&cl_addr, &addr_size);
+        if (clfd == -1)
+          return -1;
+        if (unblock_sock(clfd))
+          return -1;
+        eng->ep_events[i].events = EPOLLIN|EPOLLET;
+        eng->ep_events[i].events.data.fd = clfd;
+        if (epoll_ctl(eng->epfds[i], EPOLL_CTL_ADD, clfd, eng->ep_events + i) < 0)
+          return -1;
+        eng->nbfd[i] += 1;
+      }
+    }
+  }
+  return 0;
+}
 
 ssize_t dns_get(char **ptr, int socket)
 {
-  char *buf = malloc(sizeof(char) * 4096);
+  size_t cap = 4096;
+  char *buf = malloc(sizeof(char) * cap);
+  char *tbuf;
   ssize_t size = 0;
-  size = read(socket, buf, 4096);
-  if (size <= 0)
-  {
-    free(buf);
-    buf = NULL;
+  ssize_t tmp;
+
+  while ((tmp = read(socket, buf + size, cap / 2))){
+    if (tmp <= 0)
+    {
+      free(buf);
+      return -1;
+    }
+    size += tmp;
+    if (size >= cap){
+      tbuf = realloc(buf, cap * 2)
+      if (!tbuf){
+        free(buf);
+        return -1;
+      }
+      buf = tbuf;
+      cap *= 2;
+    }
   }
+
   *ptr = buf;
   return size;
 }
@@ -193,5 +252,3 @@ void close_serv(dns_engine *engine)
   engine->ip = NULL;
   engine->nbip = 0;
 }
-
-
