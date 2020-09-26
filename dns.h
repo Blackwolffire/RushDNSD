@@ -1,6 +1,11 @@
 #pragma once
-#include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
 #include <stdint.h>
+
+#include "dns_engine.h"
+
+
 
 typedef struct question question;
 struct question {
