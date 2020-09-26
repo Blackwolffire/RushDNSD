@@ -6,3 +6,8 @@ int size_name(char *request, int index, char *request_dns_name);
 dns *request_parser(void *request, int buffer_size);
 
 void printer(dns *dns_paquet);
+
+void free_repete(answer *answer_free, int count);
+
+void free_dns_struct(dns *dns_free);
+
