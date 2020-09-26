@@ -58,21 +58,28 @@ int add_to_tree(zone *new_zone, bin_tree *tree)
 
     if (!tree)
     {
-        bin_tree *current = tree;
+        tree = my_malloc(sizeof(bin_tree));
+        tree->name = my_malloc(strlen(array[i - 1]) + 1);
+        strncpy(current->name, array[j], strlen(array[j]) + 1);
+        current->nb_zone = 0;
+    }
+    
+    
+    bin_tree *current = tree;
 
-        for (int j = i -1; j >= 0; j--)
+     for (int j = i -1; j >= 0; j--)
+     {
+        current = my_malloc(sizeof(bin_tree));
+        current->name = my_malloc(strlen(array[j]) + 1);
+        strncpy(current->name, array[j], strlen(array[j]) + 1);
+        if (j == 0)
         {
-            current = my_malloc(sizeof(bin_tree));
-            current->name = my_malloc(strlen(array[j]) + 1);
-            strncpy(current->name, array[j], strlen(array[j]) + 1);
-            if (j == 0)
-            {
-                current->nb_zone = 1;
-                current->zone_list = my_malloc(sizeof(zone*));
-                *(current->zone_list) = new_zone;
-            }
-            else
-                current->nb_zone = 0;
+            current->nb_zone = 1;
+            current->zone_list = my_malloc(sizeof(zone*));
+            *(current->zone_list) = new_zone;
+        }
+        else
+            current->nb_zone = 0;
         }
     }
 

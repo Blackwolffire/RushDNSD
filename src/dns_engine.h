@@ -53,7 +53,7 @@ struct SOA_data {
 
 
 int error_file(char *msg);
-bin_tree *load_zone(char *filename);
+bin_tree *load_zone(const char *filename);
 bin_tree *create_tree(FILE *file);
 int add_to_tree(zone *new_zone, bin_tree *tree);
 zone *get_zone(char *line);
