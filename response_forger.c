@@ -3,7 +3,7 @@
 
 void *response_forge(dns *ans) {
     int total_len = sizeof(dns_header);
-total_len += compute_strings_length(ans);
+    total_len += compute_strings_length(ans);
     total_len += 4 + (ans->head.ancount * 10) + (ans->head.nscount * 10) + (ans->head.arcount * 10);
     void *res = malloc(total_len);
     void *p = forge_header(ans, res);
