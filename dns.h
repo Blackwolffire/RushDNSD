@@ -6,6 +6,7 @@
 #include "dns_engine.h"
 
 
+
 typedef struct question question;
 struct question {
         char *qname;
@@ -42,26 +43,3 @@ struct dns {
         answer *additional;
 };
 
-
-// dns_engine.h
-dns_engine *dns_init(char *filename, uint16_t port, char *ip); // ip séparées
-                                                              // par virgule
-void *load_zone(char *filename); // TODO struct zone à mettre dans dnsengine
-int dns_run(dns_engine *engine); // fork?NON! thread
-void dns_quit(dns_engine *engine); //TODO struct dns_engine
-
-// request_parser.h
-dns *request_parser(void *request, size_t buf_size);
-
-// client_handler.h
-dns *get_request(dns_engine *engine); // queue add chez le networkwrapper?
-dns *request_process(dns *req);
-
-// response_forger.h
-void *response_forge(dns *ans); // struct -> packet (void*)
-
-// network_wrapper.h
-void *init_serv(dns_engine *engine, uint16_t port, char *ip);
-void *dns_get(dns_engine *engine);
-void dns_send(dns_engine *engine, void *pck);
-void *close_serv(dns_engine *engine);
