@@ -34,7 +34,7 @@ void collector_init(){
 void *collector_malloc(size_t size){
     void *ptr = my_malloc(size);
 
-    struct collector_node *node = my_malloc(sizeof (struct collector_node));
+    struct collector_node *node = my_malloc(sizeof(struct collector_node));
     node->ptr = ptr;
     node->prev = NULL;
     if (collector_empty()){
@@ -52,8 +52,6 @@ void *collector_malloc(size_t size){
 
 // free() wrapper to free resource and remove its reference from the collector
 void collector_free(void *ptr){
-    if (collector_empty())
-        return;
     for (struct collector_node *ride = collector->first; ride; ride = ride->next)
         if (ride->ptr == ptr){
 	    if (ride->prev)  // Not first node of the collector
@@ -64,6 +62,7 @@ void collector_free(void *ptr){
 	        ride->next->prev = ride->prev;
             free(ptr);
 	    free(ride);
+	    return;
 	}
 }
 
@@ -78,11 +77,18 @@ void collector_exit(){
 	} else{  // Last node
             free(ride->ptr);
 	    free(ride);
+            break;
 	}
     }
     free(collector);
 }
 
 int main(int argc, char **argv){
+    collector_init();
+    int *i = collector_malloc(sizeof(int));
+    *i = 125;
+    collector_print();
+    //collector_free(i);
+    collector_exit();
     return 0;
 }
