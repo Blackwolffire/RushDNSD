@@ -2,6 +2,12 @@
 
 #include "dns.h"
 
+#define SOA_type (6)
+#define A_type (1)
+#define AAAA_type (28)
+#define CNAME_type (5)
+#define TXT_type (16)
+
 typedef struct dns_engine dns_engine;
 struct dns_engine {
     zone *dns_zone;
@@ -30,6 +36,7 @@ typedef struct SOA_data SOA_data;
 struct SOA_data {
     char *mname;
     char *rname;
+    uint32_t serial;
     uint32_t refresh;
     uint32_t retry;
     uint32_t expire;
