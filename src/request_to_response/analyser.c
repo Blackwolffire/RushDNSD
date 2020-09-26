@@ -15,3 +15,6 @@ dns *anayser(dns *request){
 	return request;
 }
 
+int func(){
+	return 3;
+}

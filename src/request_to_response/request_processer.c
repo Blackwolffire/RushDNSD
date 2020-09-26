@@ -1,11 +1,9 @@
 #include "analyser.h"
 
-int check_request(dns *request){
-	return 0;	
-}
-
 // finds zones corresponding to the request
 zone *find_zone(char *name, uint16_t type){
+	name = name;
+	type = type;
 	return NULL;
 }
 
@@ -81,9 +79,9 @@ question *copy_questions(question *quest, uint16_t question_nb){
 
 dns *make_response(dns *request, dns *response){
 
-	uint16_t an_count = 0;
-	uint16_t ns_count = 0;
-	uint16_t ar_count = 0;
+	//uint16_t an_count = 0;
+	//uint16_t ns_count = 0;
+	//uint16_t ar_count = 0;
 
 	uint16_t an_max = 4;
 	uint16_t ns_max = 4;

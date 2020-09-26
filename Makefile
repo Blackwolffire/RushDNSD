@@ -1,7 +1,21 @@
+# Compiler and flags
 CC=gcc
-CFLAGS=-std=c99 -Wall -Wextra -Werror
-SOURCE= *.c
-OUTPUT= dns
+CFLAGS= -std=c99 -Wall -Wextra -Werror -pedantic
+CFLAGS+= -Isrc 
+CFLAGS+= -Isrc/request_to_response
+LDLIBS= -lm -lSDL2
+VPATH= src/
+VPATH+= src/request_to_response/
 
-install:
-	${CC} ${CFLAGS} -o ${OUTPUT} ${SOURCE}
+EXEC = dns
+# FILES
+SRC= dns.c
+SRC+= analyser.c request_checker.c request_processer.c
+OBJS= ${SRC:.c=.o}
+
+all: ${EXEC}
+
+${EXEC}: ${OBJS}
+
+clean:
+	${RM} ${OBJS} ${EXEC}

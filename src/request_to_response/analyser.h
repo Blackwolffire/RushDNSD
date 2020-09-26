@@ -6,3 +6,5 @@
 
 // checks and makes final request
 dns *anayser(dns *request);
+
+int func();

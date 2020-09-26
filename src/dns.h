@@ -5,8 +5,6 @@
 
 #include "dns_engine.h"
 
-
-
 typedef struct question question;
 struct question {
         char *qname;
