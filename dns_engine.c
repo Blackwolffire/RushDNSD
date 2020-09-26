@@ -7,13 +7,13 @@ int error_file(char *msg)
     _exit(12);
 }
 
-bin_tree *load_zone(char *filename)
+bin_tree *load_zone(const char *filename)
 {
-    FILE *file = fopen(filename, 'r');
+    FILE *file = fopen(filename, "r");
     if (!file)
         error_file("Impossible d'ouvrir le fichier");
-    zone *tree_zone = create_tree(f);
-    fclose(f);
+    bin_tree *tree_zone = create_tree(file);
+    fclose(file);
     return tree_zone;
 }
 
@@ -27,7 +27,7 @@ bin_tree *create_tree(FILE *file)
     while (getline(&current_line, 0, file) != -1)
     {
         zone *current_zone = get_zone(current_line); 
-        if (zone->type == SOA_type)
+        if (current_zone->type == SOA_type)
             SOA++;
         if (SOA > 1)
             error_file("Multiple SOA registration");
@@ -41,9 +41,52 @@ bin_tree *create_tree(FILE *file)
     return tree;
 }
 
-void add_to_tree(zone *new_zone, bin_tree *tree)
+
+int add_to_tree(zone *new_zone, bin_tree *tree)
 {
-    bin_tree *node = my_malloc(sizeof(bin_tree));
+    char **array;
+    array[0] = strtok(new_zone->name, ".");
+    int i = 1;
+    while (1)
+    {
+        array[i] = strtok(NULL, ".");
+        if (!array[i])
+            break;
+        i++;
+    }
+
+    if (!tree)
+    {
+        bin_tree *current = tree;
+
+        for (int j = i -1; j >= 0; j--)
+        {
+            current = my_malloc(sizeof(bin_tree));
+            current->name = my_malloc(strlen(array[j]) + 1);
+            strncpy(current->name, array[j], strlen(array[j]) + 1);
+            if (j == 0)
+            {
+                current->nb_zone = 1;
+                current->zone_list = my_malloc(sizeof(zone*));
+                *(current->zone_list) = new_zone;
+            }
+            else
+                current->nb_zone = 0;
+        }
+    }
+
+    //for (int j = i -1; j >= 0; j--)
+    //{
+    
+    //}
+    //create array of pointer + counter
+    //parcours liste à l'envers
+    //si noeuc null on créé
+    //garder noeud supperieur
+    //gauche ou droite
+    //add avec malloc
+    //bin_tree *node = my_malloc(sizeof(bin_tree));
+    return 0;
 
 }
 
@@ -107,4 +150,8 @@ SOA_data *get_soa_struct(char *word)
     soa->minimum = strtol(tmp_word, NULL, 10);
     
     return soa;
+}
+
+int main(){
+    return 0;
 }
