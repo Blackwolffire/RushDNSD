@@ -18,13 +18,26 @@ void *response_forge(dns *ans) {
 
 
 int compute_strings_length(dns *ans) {
-    int quest_len = strlen(ans->quest->qname);
+    int quest_len = strlen(ans->quest->qname) + 1;
+    if (quest_len % 2 != 0) {
+        quest_len++;
+    }
 
     int answ_len = 0;
     answer *answ_index = ans->answer;
 
     for (int c = 0 ; c < ans->head.ancount ; c++) {
-        answ_len += strlen(answ_index->rname) + answ_index->rdlen;
+        int answ_rname_len = strlen(answ_index->rname) + 1;
+        if (answ_rname_len % 2 != 0) {
+            answ_rname_len++;
+        }
+
+        int answ_rdlen = answ_index->rdlen + 1;
+        if (answ_rdlen % 2 != 0) {
+            answ_rdlen++;
+        }
+
+        answ_len += answ_rname_len + answ_rdlen;
         answ_index++;
     }
 
@@ -32,7 +45,16 @@ int compute_strings_length(dns *ans) {
     answer *auth_index = ans->authority;
 
     for (int c = 0 ; c < ans->head.nscount ; c++) {
-        auth_len += strlen(auth_index->rname) + auth_index->rdlen;
+        int auth_rname_len = strlen(auth_index->rname) + 1;
+        if (auth_rname_len % 2 != 0) {
+            auth_rname_len++;
+        }
+
+        int auth_rdlen = auth_index->rdlen + 1;
+        if (auth_rdlen % 2 != 0) {
+            auth_rdlen++;
+        }
+        auth_len += auth_rname_len + auth_rdlen;
         auth_index++;
     }
 
@@ -40,7 +62,16 @@ int compute_strings_length(dns *ans) {
     answer *addi_index = ans->additional;
 
     for (int c = 0 ; c < ans->head.arcount ; c++) {
-        addi_len += strlen(addi_index->rname) + addi_index->rdlen;
+        int addi_rname_len = strlen(addi_index->rname) + 1;
+        if (addi_rname_len % 2 != 0) {
+            addi_rname_len++;
+        }
+
+        int addi_rdlen = addi_index->rdlen + 1;
+        if (addi_rdlen % 2 != 0) {
+            addi_rdlen++;
+        }
+        addi_len += addi_rname_len + addi_rdlen;
         addi_index++;
     }
 
