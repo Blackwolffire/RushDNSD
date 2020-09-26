@@ -3,38 +3,47 @@
 #include <stdio.h>
 
 //fill qname and rname fields in question, answer type struct
-int size_name(char *name, int index, char *request_dns_name)
+int size_name(uint16_t *name, int index, char *request_dns_name)
 {
-	int save_index = index;
-	while (name[index] != '\0')
+	char *name_char = (char *)name;
+	int index_char = index * 2 ;
+	int save_index = index_char;
+	char *tmp_request_dns_name = request_dns_name;
+	while (name_char[index_char] != '\0')
 	{
-		request_dns_name = request_dns_name + name[index];
+		*request_dns_name = name_char[index_char];
+		request_dns_name = request_dns_name + 1;
 		index = index + 1;
+		index_char = index_char + 1;
 	}
 	request_dns_name = request_dns_name + '\0';
-	if (index % 2 != 0)
+	index = index + 1;
+	index_char = index_char + 1;
+	if ((index_char - save_index)  % 2 != 0)
 	{
 		index = index + 1;
+		index_char = index_char + 1;
 		request_dns_name = request_dns_name + '\0';
 	} 
-	return index - save_index;
+	request_dns_name = tmp_request_dns_name;
+	return (index_char - save_index) / 2;
 }
 
 //parse categorie answer, authority, additional in dns struct
-int answer_auth_add(char *request, answer *dns_a, int accu, int count)
+int answer_auth_add(uint16_t *request, answer *dns_a, int accu, int count)
 {
   for (int j = 0; j < count; j = j + 1)
   {
 	dns_a->rname = malloc(1024);
 	int len_rname = size_name(request, accu, dns_a->rname);
 	accu = accu + len_rname;
-	dns_a->rtype = (uint16_t)request[accu];
-	dns_a->rclass = (uint16_t)request[2 + accu];
-	dns_a->ttl =(uint32_t) request[4 + accu];
-	dns_a->rdlen = (uint16_t)request[8 + accu];
-
-	int len_rdata = size_name(request, (10 + accu), dns_a->rdata);
-	accu = accu + len_rdata + 10;
+	dns_a->rtype = request[accu];
+	dns_a->rclass = request[1 + accu];
+	dns_a->ttl = request[2 + accu];
+	dns_a->rdlen = request[4 + accu];
+	dns_a->rdata = malloc(1024);
+	int len_rdata = size_name(request, (5 + accu), dns_a->rdata);
+	accu = accu + len_rdata + 5;
 	dns_a = dns_a + 1;
   }
   return accu;
@@ -54,17 +63,16 @@ dns *request_parser(void *request_void, int buffer_size)
 	dns *request_dns = malloc(sizeof(struct dns));
 
 	//cast void * in raw of Bytes
-	char *request = (char *)request_void;
-
+        uint16_t *request = (uint16_t *)request_void;
 	// HEAD BLOCK
-	request_dns->head.id = (uint16_t)request[0];
-	request_dns->head.flags = (uint16_t)request[2];
-	request_dns->head.qdcount = (uint16_t)request[4];
-	request_dns->head.ancount = (uint16_t)request[6];
-	request_dns->head.nscount = (uint16_t)request[8];
-	request_dns->head.arcount = (uint16_t)request[10];
-	// index parse begin at 12 after parse head
-	int accu = 12;
+	request_dns->head.id = request[0];
+	request_dns->head.flags = request[1];
+	request_dns->head.qdcount = request[2];
+	request_dns->head.ancount = request[3];
+	request_dns->head.nscount = request[4];
+	request_dns->head.arcount = request[5];
+	// index parse begin at 6 after parse head
+	int accu = 6;
 
 	// QUESTION BLOCK
 	if (request_dns->head.qdcount == 0)
@@ -72,11 +80,12 @@ dns *request_parser(void *request_void, int buffer_size)
 	else
 	{
 		request_dns->quest = malloc(sizeof(struct question));
-		int len_qname = size_name(request,12,request_dns->quest->qname);
+		request_dns->quest->qname = malloc(1024);
+		int len_qname = size_name(request,6,request_dns->quest->qname);
 		accu = accu + len_qname;
-		request_dns->quest->qtype = (uint16_t)request[accu];
-		request_dns->quest->qclass = (uint16_t)request[2 + accu];
-		accu = accu + 4;
+		request_dns->quest->qtype = request[accu];
+		request_dns->quest->qclass = request[1 + accu];
+		accu = accu + 2;
 	}
 
 

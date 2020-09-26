@@ -1,7 +1,9 @@
 #pragma once
 #include "dns.h"
 
-int size_name(char *request, int index, char *request_dns_name);
+int size_name(uint16_t *request, int index, char *request_dns_name);
+
+int answer_auth_add(uint16_t *request, answer *dns_a, int accu, int count);
 
 dns *request_parser(void *request, int buffer_size);
 
