@@ -47,7 +47,7 @@ dns *request_parser(void *request_void, int buffer_size)
 	}
 
 	// allocate dns request structure
-	dns *request_dns = malloc(sizeof(struct dns *));
+	dns *request_dns = malloc(sizeof(struct dns));
 
 	//cast void * in raw of Bytes
 	char *request = (char *)request_void;
@@ -67,7 +67,7 @@ dns *request_parser(void *request_void, int buffer_size)
 		request_dns->quest = NULL;
 	else
 	{
-		request_dns->quest = malloc(sizeof(struct question *));
+		request_dns->quest = malloc(sizeof(struct question));
 
 		int len_qname = size_name(request,12,request_dns->quest->qname);
 		accu = accu + len_qname;
@@ -82,7 +82,7 @@ dns *request_parser(void *request_void, int buffer_size)
 		request_dns->answer = NULL;
 	else
 	{
-		request_dns->answer = malloc(sizeof(struct answer *) * request_dns->head.ancount);
+		request_dns->answer = malloc(sizeof(struct answer) * request_dns->head.ancount);
 
 		answer *dns_save_answer = request_dns->answer; 
 		accu = answer_auth_add(request, request_dns->answer, accu, request_dns->head.ancount);
@@ -93,7 +93,7 @@ dns *request_parser(void *request_void, int buffer_size)
 		request_dns->authority = NULL;
 	else
 	{
-		request_dns->authority = malloc(sizeof(struct answer *) * request_dns->head.nscount);
+		request_dns->authority = malloc(sizeof(struct answer) * request_dns->head.nscount);
 		answer *dns_save_authority = request_dns->authority;
 		accu = answer_auth_add(request, request_dns->authority, accu, request_dns->head.nscount);
 		request_dns->authority = dns_save_authority;
@@ -103,7 +103,7 @@ dns *request_parser(void *request_void, int buffer_size)
 		request_dns->additional = NULL;
 	else
 	{
-		request_dns->additional = malloc(sizeof(struct answer *) * request_dns->head.arcount);
+		request_dns->additional = malloc(sizeof(struct answer) * request_dns->head.arcount);
 		answer *dns_save_additional = request_dns->additional;
 		accu = answer_auth_add(request, request_dns->additional, accu, request_dns->head.arcount);
 		request_dns->additional = dns_save_additional;
