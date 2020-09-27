@@ -1,6 +1,7 @@
 #include "request_parser.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <arpa/inet.h>
 
 //fill qname and rname fields in question, answer type struct
 int size_name(uint16_t *name, int index, char *request_dns_name)
@@ -37,10 +38,10 @@ int answer_auth_add(uint16_t *request, answer *dns_a, int accu, int count)
 	dns_a->rname = malloc(1024);
 	int len_rname = size_name(request, accu, dns_a->rname);
 	accu = accu + len_rname;
-	dns_a->rtype = request[accu];
-	dns_a->rclass = request[1 + accu];
-	dns_a->ttl = request[2 + accu];
-	dns_a->rdlen = request[4 + accu];
+	dns_a->rtype = ntohs(request[accu]);
+	dns_a->rclass = ntohs(request[1 + accu]);
+	dns_a->ttl = ntohl(request[2 + accu]);
+	dns_a->rdlen = ntohs(request[4 + accu]);
 	dns_a->rdata = malloc(1024);
 	int len_rdata = size_name(request, (5 + accu), dns_a->rdata);
 	accu = accu + len_rdata + 5;
@@ -65,12 +66,12 @@ dns *request_parser(void *request_void, int buffer_size)
 	//cast void * in raw of Bytes
         uint16_t *request = (uint16_t *)request_void;
 	// HEAD BLOCK
-	request_dns->head.id = request[0];
-	request_dns->head.flags = request[1];
-	request_dns->head.qdcount = request[2];
-	request_dns->head.ancount = request[3];
-	request_dns->head.nscount = request[4];
-	request_dns->head.arcount = request[5];
+	request_dns->head.id = ntohs(request[0]);
+	request_dns->head.flags = ntohs(request[1]);
+	request_dns->head.qdcount = ntohs(request[2]);
+	request_dns->head.ancount = ntohs(request[3]);
+	request_dns->head.nscount = ntohs(request[4]);
+	request_dns->head.arcount = ntohs(request[5]);
 	// index parse begin at 6 after parse head
 	int accu = 6;
 
@@ -83,8 +84,8 @@ dns *request_parser(void *request_void, int buffer_size)
 		request_dns->quest->qname = malloc(1024);
 		int len_qname = size_name(request,6,request_dns->quest->qname);
 		accu = accu + len_qname;
-		request_dns->quest->qtype = request[accu];
-		request_dns->quest->qclass = request[1 + accu];
+		request_dns->quest->qtype = ntohs(request[accu]);
+		request_dns->quest->qclass = ntohs(request[1 + accu]);
 		accu = accu + 2;
 	}
 
@@ -170,7 +171,10 @@ void free_repete(answer *answer_free, int count)
 	{
 		answer *tmp = answer_free;
 		if (answer_free->rname != NULL)
- 			free(answer_free->rname);
+		{
+			free(answer_free->rname);
+			free(answer_free->rdata);
+		}
 		answer_free = answer_free + 1;
 		free(tmp);
 	}
