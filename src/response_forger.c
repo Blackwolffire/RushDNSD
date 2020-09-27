@@ -13,10 +13,14 @@ void *response_forge(dns *ans, ssize_t *size) {
 
     // writes the different parts of the DNS packet
     void *p = forge_header(ans, res);
-    p = forge_quest(ans, p);
-    p = forge_answer(ans, p);
-    p = forge_authority(ans, p);
-    p = forge_additional(ans, p);
+    if (ans->head.qdcount > 0)
+    	p = forge_quest(ans, p);
+    if (ans->head.ancount > 0)
+    	p = forge_answer(ans, p);
+    if (ans->head.nscount > 0)
+    	p = forge_authority(ans, p);
+    if (ans->head.arcount > 0)
+    	p = forge_additional(ans, p);
 
     //free_dns_struct(ans);
 

@@ -3,5 +3,5 @@
 
 int request_checker(dns *request){
 	request = request;
-	return 0;	
+	return 0;
 }

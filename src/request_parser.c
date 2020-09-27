@@ -126,21 +126,41 @@ dns *request_parser(void *request_void, int buffer_size)
 	return request_dns;
 }
 
+
+void printflag(uint16_t flag){
+	
+	
+	printf("     QR    : %d\n", flag >> 15);
+	printf("     OPCODE: %d\n", (flag >> 11) % 8);
+	printf("     AA    : %d\n", (flag >> 10) % 2);
+	printf("     TC    : %d\n", (flag >> 9 ) % 2);
+	printf("     RD    : %d\n", (flag >> 8 ) % 2);
+	printf("     RA    : %d\n", (flag >> 7 ) % 2);
+	printf("     z    : %d\n", (flag >> 4 ) % 8);
+	printf("     RCODE : %d\n", flag % 16);
+
+}
+
+
 //display a dns struct
-/*
 void printer(dns *dns_paquet)
 {
+	printf("====================================\n");
 	printf("header block :\n");
 	 printf("  id : %d\n",dns_paquet->head.id);
 	 printf("  flags : %d\n",dns_paquet->head.flags);
+	 printflag(dns_paquet->head.flags);
 	 printf("  qdcount : %d\n", dns_paquet->head.qdcount);
 	 printf("  ancount : %d\n", dns_paquet->head.ancount);
 	 printf("  nscount : %d\n", dns_paquet->head.nscount);
 	 printf("  arcount : %d\n", dns_paquet->head.arcount);
 	printf("question block :\n");
-	 printf("  qname : %s\n", dns_paquet->quest->qname);
+	if (dns_paquet->quest){
+	printf("  qname : %s\n", dns_paquet->quest->qname);
 	 printf("  qtype : %d\n", dns_paquet->quest->qtype);
 	 printf("  qclass : %d\n", dns_paquet->quest->qclass);
+	}
+	if (dns_paquet->answer){
 	printf("answer block :\n");
 	 printf("  rname : %s\n", dns_paquet->answer->rname);
 	 printf("  rtype : %d\n", dns_paquet->answer->rtype);
@@ -148,6 +168,8 @@ void printer(dns *dns_paquet)
 	 printf("  ttl : %d\n", dns_paquet->answer->ttl);
 	 printf("  rdlen : %d\n", dns_paquet->answer->rdlen);
 	 printf("  rdata : %s\n", dns_paquet->answer->rdata);
+	}
+	if (dns_paquet->authority){
 	printf("authority block :\n");
 	 printf("  rname : %s\n", dns_paquet->authority->rname);
 	 printf("  rtype : %d\n", dns_paquet->authority->rtype);
@@ -155,6 +177,9 @@ void printer(dns *dns_paquet)
 	 printf("  ttl : %d\n", dns_paquet->authority->ttl);
 	 printf("  rdlen : %d\n", dns_paquet->authority->rdlen);
 	 printf("  rdata : %s\n", dns_paquet->authority->rdata);
+	}
+	
+	if (dns_paquet->additional){
 	printf("additional block :\n");
 	 printf("  rname : %s\n", dns_paquet->additional->rname);
 	 printf("  rtype : %d\n", dns_paquet->additional->rtype);
@@ -162,9 +187,9 @@ void printer(dns *dns_paquet)
 	 printf("  ttl : %d\n", dns_paquet->additional->ttl);
 	 printf("  rdlen : %d\n", dns_paquet->additional->rdlen);
 	 printf("  rdata : %s\n", dns_paquet->additional->rdata);
-	free_dns_struct(dns_paquet);
+	}
+//	free_dns_struct(dns_paquet);
 }
-*/
 
 //free answer, authority and additional struct
 void free_repete(answer *answer_free, int count)

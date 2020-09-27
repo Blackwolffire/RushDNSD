@@ -1,5 +1,7 @@
 #include "request_parser.h"
 #include "response_forger.h"
+#include "analyser.h"
+#include "dns_runner.h"
 #include <stdlib.h>
 
 int main ()
@@ -48,17 +50,17 @@ int main ()
 	dns_test->additional->rdlen = 12;
 	dns_test->additional->rdata = malloc(13);
 	dns_test->additional->rdata = "205.35.65.25";
-	size_t mdr = 0;
+	ssize_t mdr = 0;
 
-	dns_engine *engine = dns_init(filename,port, "127.0.0.1");
+	dns_engine *engine = dns_init("test_file",53, "127.0.0.1");
 
-	dns *response = 
+	printer(dns_test);
+	dns *response = analyser(dns_test, engine->soa_zone, engine->tree); 
 
 
-	void *paquet_test = response_forge(dns_test, &mdr);
-	dns * res = request_parser(paquet_test,50);
-	
-	
+	void *paquet_test = response_forge(response, &mdr);
+	dns *res = request_parser(paquet_test,50);	
+	printer(res);
 
 	return 0;
 }
