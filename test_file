@@ -1,0 +1,5 @@
+example.com;SOA;3600;ns0.example.com. postmaster.example.com. 2020092501 86400 3600 604800 3600www.example.com;AAAA;7200;2001:DB8::1
+ns0.example.com;A;86400;192.0.2.3
+ns1.example.com;A;7200;192.0.2.4
+sub.zone.example.com;;NS;86400ns1.sub.zone.example.com.
+sub.zone.example.com;NS;86400;ns2.sub.zone.example.com.
