@@ -21,3 +21,13 @@
 |------find_zone.*           lit et chercher dans le fichier de zone
 |------request_checker.*     permet de verifier qu'une requete est valide
 |------request_processer.*   crée une réponse à la question en utilisant find_zone.*
+
+
+
+Installation : Il suffit de taper "make" dans le terminal pour générer un binaire "server_dns" à la racine du projet.
+
+Pour exécuter "server_dns", il faudra donner un ou plusieurs arguments au binaire :
+
+-p : Port de notre service DNS (exemple: $> ./server_dns -p 5300).
+-a : Sert à indiquer sur quelle(s) adresse(s) IP tournent notre service DNS (exemple: $> ./server_dns -a 127.0.0.1).
+-f : Chemin vers le fichier de zone (exemple: $> ./server_dns -f ../zone_files).
