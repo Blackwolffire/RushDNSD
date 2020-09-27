@@ -110,20 +110,21 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
 
   struct epoll_event **events = calloc(nbip, sizeof(struct epoll_event*));
 
-  int ipcheck, domain, error = 0, flags;
+  int ipcheck, domain, error = 0; //, flags;
   struct sockaddr_in addr;
   struct sockaddr_in6 addr6;
+  addr.sin_port = htons(port);
   for (i = 0; i < nbip; ++i)
   {
     ipcheck = check_ip(engine->ip[i]);
     domain = ipcheck == 1? AF_INET : AF_INET6;
     sockets[i] = socket(domain, SOCK_STREAM, 0);
-    if (setsockopt(socket[i], SOL_SOCKET, SO_REUSEADDRE, &flags,
+    /*if (setsockopt(sockets[i], SOL_SOCKET, SO_REUSEADDR, &flags,
                    sizeof(flags)) == -1){
       error = 1;
       break;
-    }
-    unblock_sock(sockets[i]);
+    }*/
+    //unblock_sock(sockets[i]);
     if (domain == AF_INET){
       bzero(&addr, sizeof(addr));
       addr.sin_family = domain;
@@ -132,7 +133,7 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
     }else{
       bzero(&addr6, sizeof(addr6));
       addr6.sin6_family = domain;
-      inet_pton(AF_INET6, engine->ip[i], &addr6.sin6_addr.s_addr);
+      inet_pton(AF_INET6, engine->ip[i], &(addr6.sin6_addr.s6_addr));
       addr6.sin6_port = htons(port);
     }
     if (domain == AF_INET){

@@ -10,7 +10,7 @@ dns *analyser(dns *request, zone *soa, bin_tree *tree){
 	else
 	{
 		// valid request
-		return make_valid_response(request, soa, tree);
+		//return make_valid_response(request, soa, tree);
 	}
 	return request;
 }

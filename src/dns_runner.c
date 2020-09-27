@@ -40,6 +40,9 @@ void dns_run(dns_engine *engine)
   char *pck, *res;
   dns *dnspck;
 
+  if (!engine)
+      return;
+
   for(;;)
   {
 

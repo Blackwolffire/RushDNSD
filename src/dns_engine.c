@@ -134,7 +134,21 @@ zone *get_zone(char *line)
             strtok(NULL, ";");
         }
         if (i == 0)
-            new_zone->type = (short)strtol(tmp_word, NULL, 10);
+        {
+            if (strcmp(tmp_word, "SOA") == 0)
+                new_zone->type = 6;
+            else if (strcmp(tmp_word, "A") == 0)
+                new_zone->type = 1;
+            else if (strcmp(tmp_word, "AAAA") == 0)
+                new_zone->type = 28;
+            else if (strcmp(tmp_word, "CNAME") == 0)
+                new_zone->type = 5;
+            else if (strcmp(tmp_word, "TXT") == 0)
+                new_zone->type = 16;
+            else
+                new_zone->type = 42;
+
+        }
         else if (i == 1)
             new_zone->ttl = (int)strtol(tmp_word, NULL, 10);
         else if (i == 2)
