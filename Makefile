@@ -1,16 +1,19 @@
 # Compiler and flags
 CC=gcc
-CFLAGS= -std=c99 -Wall -Wextra -Werror -pedantic
-CFLAGS+= -Isrc 
+CFLAGS= -std=c99 -Wall -Wextra -Werror -pedantic -g
+CFLAGS+= -Isrc
 CFLAGS+= -Isrc/request_to_response
-LDLIBS= -lm -lSDL2
+LDLIBS=
 VPATH= src/
 VPATH+= src/request_to_response/
 
-EXEC = dns
+EXEC = server_dns
+
 # FILES
-SRC= dns.c
+SRC= server_dns.c
 SRC+= analyser.c request_checker.c request_processer.c find_zone.c
+SRC+= server_dns.c dns_runner.c network_wrapper.c
+
 OBJS= ${SRC:.c=.o}
 
 all: ${EXEC}
