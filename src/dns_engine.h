@@ -23,6 +23,15 @@ struct zone {
     void *data; //soit char*, soit struct SOA_data*
 };
 
+typedef struct bin_tree bin_tree;
+struct bin_tree {
+    bin_tree *son; //gauche
+    bin_tree *bro; //droit
+    char *name; //du noeud uniquement, sans les points sauf noeud pere
+    zone **zone_list; //@ du premier
+    size_t nb_zone;
+};
+
 typedef struct dns_engine dns_engine;
 struct dns_engine {
     zone *soa_zone;
@@ -35,15 +44,6 @@ struct dns_engine {
     int *nbfd; // number of socket by epoll
     struct epoll_event *ep_events; // epoll events
     struct epoll_event **events;
-};
-
-typedef struct bin_tree bin_tree;
-struct bin_tree {
-    bin_tree *son; //gauche
-    bin_tree *bro; //droit
-    char *name; //du noeud uniquement, sans les points sauf noeud pere
-    zone **zone_list; //@ du premier
-    size_t nb_zone;
 };
 
 typedef struct SOA_data SOA_data;
