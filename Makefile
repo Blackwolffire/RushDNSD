@@ -15,7 +15,7 @@ EXEC = server_dns
 # FILES
 SRC= server_dns.c
 SRC+= analyser.c request_checker.c request_processer.c find_zone.c
-SRC+= server_dns.c dns_runner.c network_wrapper.c
+SRC+= dns_runner.c network_wrapper.c
 SRC+= dns_engine.c my_free.c my_libc.c
 SRC+= response_forger.c
 SRC+= request_parser.c

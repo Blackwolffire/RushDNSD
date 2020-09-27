@@ -196,6 +196,12 @@ uint16_t add_ar(dns *response, zone *zone, uint16_t ar_max){
 
 dns *make_response(dns *request, dns *response, zone *soa, bin_tree *tree){
 
+	// set header counts to 0
+	response->head.ancount = 0;
+	response->head.nscount = 0;
+	response->head.arcount = 0;
+
+
 	uint16_t an_max = 4;
 	uint16_t ns_max = 4;
 	uint16_t ar_max = 4;
@@ -298,7 +304,7 @@ dns *make_response(dns *request, dns *response, zone *soa, bin_tree *tree){
 
 dns *make_valid_response(dns *request, zone *soa, bin_tree *tree){	
 
-	// creqte response
+	// create response
 	dns *response = malloc(sizeof(dns));
 	if (response == NULL)
 		return NULL;

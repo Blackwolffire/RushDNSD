@@ -1,1 +1,33 @@
-.
+
+|--Makefile                  Permet de compiler nos fichiers
+|--test_file                 fichier de zone test
+|--src/
+|----dns_engine.*            permet de parser les paquets client et forger les réponses.
+|----dns.h                   contient la structure d'un paquet dns
+|----dns_runner.*            représente le noyau de notre projet, gestionnaire d'events 
+|----my_free.*               permet de free l'arbre initialiser dans network_wrapper.c
+|----my_libc.*               permet de recoder des fonctions de la libc plus proprement
+|----network_wrapper.*       permet de gerer les zones d'enregistrement donner dans les fichiers
+|----request_parser.*        permet de transformer le void * recue en structure DNS pour être manipuler ensuite
+|----response_forger.*       permet de transformer une structure DNS en void * pour envoyer le paquet
+|----server_dns.c            représente le main de notre projet
+|----tests.c                 fichier de test
+|----catch/
+|------catch.*               permet de controler le signal 
+|----collector/
+|------collector.*	     permet de crée un garbadge collecteur
+|----request_to_response\
+|------analyser.*            permet de verifier la validité de la rêquete
+|------find_zone.*           lit et chercher dans le fichier de zone
+|------request_checker.*     permet de verifier qu'une requete est valide
+|------request_processer.*   crée une réponse à la question en utilisant find_zone.*
+
+
+
+Installation : Il suffit de taper "make" dans le terminal pour générer un binaire "server_dns" à la racine du projet.
+
+Pour exécuter "server_dns", il faudra donner un ou plusieurs arguments au binaire :
+
+-p : Port de notre service DNS (exemple: $> ./server_dns -p 5300).
+-a : Sert à indiquer sur quelle(s) adresse(s) IP tournent notre service DNS (exemple: $> ./server_dns -a 127.0.0.1).
+-f : Chemin vers le fichier de zone (exemple: $> ./server_dns -f ../zone_files).
