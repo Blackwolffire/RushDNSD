@@ -12,8 +12,6 @@ void free_zone(zone *zone1)
     free(zone1);
 }
 
-void free_dns_engine(dns_engine *engine);
-
 void free_bin_tree(bin_tree *tree)
 {
     bin_tree *tmp = tree;
