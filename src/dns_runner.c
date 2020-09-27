@@ -1,9 +1,10 @@
 #include <stdlib.h>
 
+#include "analyser.h"
 #include "dns_runner.h"
+#include "my_free.h"
 #include "network_wrapper.h"
 #include "request_parser.h"
-#include "analyser.h"
 #include "response_forger.h"
 
 dns_engine* dns_init(char *filename, uint16_t port, char *ip)
@@ -52,7 +53,7 @@ void dns_run(dns_engine *engine)
       {
         size = dns_get(&pck, engine->events[i][j].data.fd);
         dnspck = request_parser(pck, size);
-        dnspck = analyser(dnspck, engine);
+        dnspck = analyser(dnspck, engine->soa_zone, engine->tree);
         res = response_forge(dnspck, &sizeres);
         if (sizeres < 0){
           free(dnspck);

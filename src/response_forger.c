@@ -1,7 +1,7 @@
 #include "response_forger.h"
 
 
-void *response_forge(dns *ans, size_t *size) {
+void *response_forge(dns *ans, ssize_t *size) {
     if (ans == NULL) {
         return NULL;
     }
