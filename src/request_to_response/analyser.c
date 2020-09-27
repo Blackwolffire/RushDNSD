@@ -1,6 +1,8 @@
 #include "analyser.h"
 
 dns *analyser(dns *request, zone *soa, bin_tree *tree){
+  (void)(soa);
+  (void)(tree);
 	if (request_checker(request) == 0)
 	{
 		// Invalid request
