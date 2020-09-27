@@ -3,12 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "dns.h"
+#include "request_parser.h"
 
 
-void *response_forge(dns *ans); // struct -> packet (void*)
+void *response_forge(dns *ans, size_t *size); // struct -> packet (void*)
 int compute_strings_length(dns *ans);
-void *forge_header(dns *ans, dns_header *h);
-void *forge_quest(dns *ans, question *q);
-void *forge_answer(dns *ans, answer *a);
-void *forge_authority(dns *ans, answer *au);
-void *forge_additional(dns *ans, answer *ad);
+void *forge_header(dns *ans, void *header);
+void *forge_quest(dns *ans, void *quest);
+void *forge_answer(dns *ans, void *answ);
+void *forge_authority(dns *ans, void *auth);
+void *forge_additional(dns *ans, void *addit);
