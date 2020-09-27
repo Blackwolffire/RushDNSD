@@ -1,9 +1,10 @@
 #include <stdlib.h>
 
+#include "analyser.h"
 #include "dns_runner.h"
+#include "my_free.h"
 #include "network_wrapper.h"
 #include "request_parser.h"
-#include "analyser.h"
 #include "response_forger.h"
 
 dns_engine* dns_init(char *filename, uint16_t port, char *ip)

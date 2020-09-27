@@ -5,19 +5,20 @@
 #define _POSIX_C_SOURCE 2
 
 #include <unistd.h>
+#include <getopt.h>
 
 #include "dns_runner.h"
 
 int main(int argc, char **argv)
 {
-  char *ip, *filename;
-  uint16_t port;
+  char *ip = NULL, *filename = NULL;
+  uint16_t port = 0;
   int opt;
   int len;
 
-  if (argc <= 2){
+  if (argc <= 3){
     printf("Usage: %s -p [port] -a [IP, IP, ...] -f [filename]\n", argv[0]);
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
   }
 
   while ((opt = getopt(argc, argv, "paf")) != -1){
@@ -38,10 +39,31 @@ int main(int argc, char **argv)
       default:
         printf("Usage: %s -p [port] -a [IP, IP, ...] -f [filename]\n",
                argv[0]);
+        if (filename)
+          free(filename);
+        if (ip)
+          free(ip);
+        return EXIT_FAILURE;
     }
   }
 
-  dns_engine *engine = dns_init("prout", 53, ip);
+  if (!filename){
+    printf("Usage: %s -p [port] -a [IP, IP, ...] -f [filename]\n",
+           argv[0]);
+    if (ip)
+      free(ip);
+    return EXIT_FAILURE;
+  }
+
+  if (!ip){
+    ip = calloc(10, sizeof(char));
+    strncpy(ip, "127.0.0.1", 10);
+  }
+  if (!port)
+    port = 53;
+
+
+  dns_engine *engine = dns_init(filename, port, ip);
   dns_run(engine);
   dns_quit(engine);
 
