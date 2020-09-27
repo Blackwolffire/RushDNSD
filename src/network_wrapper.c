@@ -135,9 +135,16 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
       inet_pton(AF_INET6, engine->ip[i], &addr6.sin6_addr.s_addr);
       addr6.sin6_port = htons(port);
     }
-    if (bind(sockets[i], (struct sockaddr*)&addr, sizeof(addr))){
-      error = 1;
-      break;
+    if (domain == AF_INET){
+      if (bind(sockets[i], (struct sockaddr*)&addr, sizeof(addr))){
+        error = 1;
+        break;
+      }
+    }else{
+      if (bind(sockets[i], (struct sockaddr*)&addr6, sizeof(addr6))){
+        error = 1;
+        break;
+      }
     }
     if (listen(sockets[i], BACKLOG)){
       error = 1;
