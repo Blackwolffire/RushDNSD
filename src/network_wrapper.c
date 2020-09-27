@@ -139,7 +139,7 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
     }
     if (domain == AF_INET){
       if (bind(sockets[i], (struct sockaddr*)&addr, sizeof(addr))){
-          perror("lol\n");
+          perror("bind failed\n");
         error = 1;
         break;
       }
@@ -239,7 +239,7 @@ ssize_t dns_get(char **ptr, int socket)
   ssize_t tmp;
 
 
-  while ((tmp = read(socket, buf + size, cap / 2))){
+  while ((tmp = recv(socket, buf + size, cap / 2, 0))){
     if (tmp <= 0)
     {
       free(buf);
@@ -263,7 +263,9 @@ ssize_t dns_get(char **ptr, int socket)
 
 ssize_t dns_send(int socket, char *pck, size_t size)
 {
-  ssize_t written = write(socket, pck, size);
+  if (!pck)
+    return -1;
+  ssize_t written = send(socket, pck, size, 0);
   return written;
 }
 
