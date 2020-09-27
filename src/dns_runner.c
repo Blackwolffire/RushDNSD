@@ -60,6 +60,7 @@ void dns_run(dns_engine *engine)
           break;
         }
         dns_send(engine->events[i][j].data.fd, res, (size_t)sizeres);
+        free(dnspck);
         close_client(engine->epfds[i], engine->events[i][j].data.fd,
                      engine->ep_events + i);
         engine->nbfd[i] -= 1;
