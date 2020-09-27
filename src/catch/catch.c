@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "catch.h"
-#include "../collector/collector.h"
+#include "collector.h"
 
 // All the functions called when ctrl-c is caught go here
 static void inthandler(){

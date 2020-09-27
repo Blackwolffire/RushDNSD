@@ -6,4 +6,4 @@
 #include "find_zone.h"
 
 // checks and makes final request
-dns *anayser(dns *request, zone *soa, bin_tree *tree);
+dns *analyser(dns *request, zone *soa, bin_tree *tree);
