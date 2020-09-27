@@ -6,7 +6,7 @@
 #include "request_parser.h"
 
 
-void *response_forge(dns *ans); // struct -> packet (void*)
+void *response_forge(dns *ans, size_t *size); // struct -> packet (void*)
 int compute_strings_length(dns *ans);
 void *forge_header(dns *ans, void *header);
 void *forge_quest(dns *ans, void *quest);
