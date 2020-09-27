@@ -244,6 +244,12 @@ ssize_t dns_send(int socket, char *pck, size_t size)
   return written;
 }
 
+void close_client(int epfd, int socket, struct epoll_event *ev)
+{
+  epoll_ctl(epfd, EPOLL_CTL_DEL, socket, ev);
+  close(socket);
+}
+
 void close_serv(dns_engine *engine)
 {
   for (int i=0; i < engine->nbip; ++i){
