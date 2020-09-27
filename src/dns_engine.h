@@ -25,7 +25,8 @@ struct zone {
 
 typedef struct dns_engine dns_engine;
 struct dns_engine {
-    zone *dns_zone;
+    zone *soa_zone;
+    bin_tree *tree;
     uint16_t port;
     int *sockets;
     char **ip;

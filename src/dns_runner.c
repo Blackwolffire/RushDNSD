@@ -13,7 +13,7 @@ dns_engine* dns_init(char *filename, uint16_t port, char *ip)
   if (!engine)
     return NULL;
 
-  engine->dns_zone = NULL;
+  engine->soa_zone = NULL;
   engine->port = 0;
   engine->sockets = NULL;
   engine->ip = NULL;
@@ -28,7 +28,7 @@ dns_engine* dns_init(char *filename, uint16_t port, char *ip)
     return NULL;
   }
 
-  (void)filename;//load_zone(engine, filename);
+  engine->tree = load_zone(engine, filename);
 
   return engine;
 }
@@ -52,7 +52,7 @@ void dns_run(dns_engine *engine)
       {
         size = dns_get(&pck, engine->events[i][j].data.fd);
         dnspck = request_parser(pck, size);
-        dnspck = analyser(dnspck);
+        dnspck = analyser(dnspck, engine);
         res = response_forge(dnspck, &sizeres);
         if (sizeres < 0){
           free(dnspck);
@@ -72,6 +72,7 @@ void dns_quit(dns_engine *engine)
 {
   if (!engine)
     return;
+  free_bin_tree(engine->tree);
   close_serv(engine);
   free(engine);
 }
