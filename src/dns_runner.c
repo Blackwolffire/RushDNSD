@@ -55,7 +55,11 @@ void dns_run(dns_engine *engine)
       for (int j=0; j < engine->nbfd[i]; ++j)
       {
         size = dns_get(&pck, engine->events[i][j].data.fd);
+        if (size <= 0){
+          continue;
+        }
         dnspck = request_parser(pck, size);
+        free(pck);
         dnspck = analyser(dnspck, engine->soa_zone, engine->tree);
         res = response_forge(dnspck, &sizeres);
         if (sizeres < 0){
