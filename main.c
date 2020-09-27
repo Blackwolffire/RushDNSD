@@ -48,7 +48,7 @@ int main ()
  dns_test->additional->rdlen = 12;
  dns_test->additional->rdata = malloc(13);
  dns_test->additional->rdata = "205.35.65.25";
- void *paquet_test = response_forge(dns_test);
- dns *dns_response = request_parser(paquet_test,50);
- printer(dns_response);
+ size_t mdr = 0;
+ void *paquet_test = response_forge(dns_test, &mdr);
+ request_parser(paquet_test,50);
 }
