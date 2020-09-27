@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
-  while ((opt = getopt(argc, argv, "paf")) != -1){
+  while ((opt = getopt(argc, argv, "p:a:f:")) != -1){
     switch (opt){
       case 'p':
         port = atoi(optarg);
