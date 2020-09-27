@@ -4,7 +4,7 @@
 |--src/
 |----dns_engine.*            permet de parser les paquets client et forger les réponses.
 |----dns.h                   contient la structure d'un paquet dns
-|----dns_runner.*            représente le noyau de notre projet, gestionnaire d'events 
+|----dns_runner.*            représente le noyau de notre projet, gestionnaire d'events
 |----my_free.*               permet de free l'arbre initialiser dans network_wrapper.c
 |----my_libc.*               permet de recoder des fonctions de la libc plus proprement
 |----network_wrapper.*       permet de gerer les zones d'enregistrement donner dans les fichiers
@@ -13,7 +13,7 @@
 |----server_dns.c            représente le main de notre projet
 |----tests.c                 fichier de test
 |----catch/
-|------catch.*               permet de controler le signal 
+|------catch.*               permet de controler le signal
 |----collector/
 |------collector.*	     permet de crée un garbadge collecteur
 |----request_to_response\
@@ -26,8 +26,8 @@
 
 Installation : Il suffit de taper "make" dans le terminal pour générer un binaire "server_dns" à la racine du projet.
 
-Pour exécuter "server_dns", il faudra donner un ou plusieurs arguments au binaire :
+Pour exécuter "server_dns", il est conseillé de lancer l'exécutable en mode superutilisateur, il faudra également donner un ou plusieurs arguments au binaire :
 
--p : Port de notre service DNS (exemple: $> ./server_dns -p 5300).
--a : Sert à indiquer sur quelle(s) adresse(s) IP tournent notre service DNS (exemple: $> ./server_dns -a 127.0.0.1).
--f : Chemin vers le fichier de zone (exemple: $> ./server_dns -f ../zone_files).
+-p : Port de notre service DNS (exemple: $> sudo ./server_dns -p 5300).
+-a : Sert à indiquer sur quelle(s) adresse(s) IP tournent notre service DNS (exemple: $>sudo ./server_dns -a 127.0.0.1).
+-f : Chemin vers le fichier de zone (exemple: $>sudo ./server_dns -f test_file).
