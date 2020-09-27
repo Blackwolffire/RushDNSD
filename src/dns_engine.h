@@ -1,11 +1,13 @@
 #pragma once
 
-#include "dns.h"
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/epoll.h>
+#include <unistd.h>
+
+#include "dns.h"
 
 #define SOA_type (6)
 #define A_type (1)
@@ -23,10 +25,16 @@ struct zone {
 
 typedef struct dns_engine dns_engine;
 struct dns_engine {
-    zone *dns_zone;
+    zone *soa_zone;
+    bin_tree *tree;
     uint16_t port;
     int *sockets;
     char **ip;
+    int nbip;
+    int *epfds; //epoll file descriptors
+    int *nbfd; // number of socket by epoll
+    struct epoll_event *ep_events; // epoll events
+    struct epoll_event **events;
 };
 
 typedef struct bin_tree bin_tree;
@@ -51,14 +59,9 @@ struct SOA_data {
 
 
 int error_file(char *msg);
-bin_tree *load_zone(char *filename);
-bin_tree *create_tree(FILE *file);
-int add_to_tree(zone *new_zone, bin_tree *tree);
+bin_tree *load_zone(dns_engine *engine, const char *filename);
+bin_tree *create_tree(FILE *file, dns_engine *engine);
+bin_tree *add_to_tree(zone *new_zone, bin_tree *tree);
 zone *get_zone(char *line);
 SOA_data *get_soa_struct(char *word);
-
-//dns_engine *dns_init(char *filename, uint16_t port, char *ip); // ip séparées
-                                                              // par virgule
-//void *load_zone(char *filename); // TODO struct zone à mettre dans dnsengine
-//int dns_run(dns_engine *engine); // fork?NON! thread
-//void dns_quit(dns_engine *engine); //TODO struct dns_engine + dns_zone
+zone *check_new_zone(zone *new_zone);
