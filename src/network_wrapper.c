@@ -37,7 +37,7 @@ int unblock_sock(int fd)
 
 dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
 {
-  size_t len, nbip;
+  size_t len, nbip = 1;
   int *sockets;
 
   if (!ip)
@@ -52,12 +52,11 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
 
   engine->ip[0] = ip;
   size_t j = 1, i = 1;
-  for (; j < nbip - 2; ++i)
+  for (; j < nbip; ++i)
     if (ip[i] == ','){
       ip[i] = 0;
       engine->ip[j++] = ip + i + 1;
     }
-  engine->ip[j] = ip + i;
 
   engine->nbip = nbip;
   for (i = 0; i < nbip; ++i)
@@ -86,7 +85,7 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
     return NULL;
   }
 
-  int *nbfd = malloc(sizeof(int) * nbip);
+  int *nbfd = calloc(nbip, sizeof(int));
   if (!nbfd){
     free(epfds);
     free(sockets);
@@ -97,7 +96,7 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
     return NULL;
   }
 
-  struct epoll_event *ep_events = malloc(sizeof(struct epoll_event) * nbip);
+  struct epoll_event *ep_events = calloc(nbip, sizeof(struct epoll_event));
   if (!ep_events){
     free(nbfd);
     free(epfds);
@@ -109,7 +108,7 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
     return NULL;
   }
 
-  struct epoll_event **events = malloc(sizeof(struct epoll_event*) * nbip);
+  struct epoll_event **events = calloc(nbip, sizeof(struct epoll_event*));
 
   int ipcheck, domain, error = 0;
   struct sockaddr_in addr;
@@ -190,14 +189,16 @@ int fetch_clients(dns_engine *eng)
     for (int j=0; j < nbfd; ++j){
       if (eng->events[i][j].data.fd == eng->sockets[i]){
         addr_size = sizeof(cl_addr);
-        clfd = accept(eng->events[i][j].data.fd, (struct sockaddr*)&cl_addr, &addr_size);
+        clfd = accept(eng->events[i][j].data.fd, (struct sockaddr*)&cl_addr,
+                      &addr_size);
         if (clfd == -1)
           return -1;
         if (unblock_sock(clfd))
           return -1;
         eng->ep_events[i].events = EPOLLIN|EPOLLET;
         eng->ep_events[i].data.fd = clfd;
-        if (epoll_ctl(eng->epfds[i], EPOLL_CTL_ADD, clfd, eng->ep_events + i) < 0)
+        if (epoll_ctl(eng->epfds[i], EPOLL_CTL_ADD, clfd, eng->ep_events + i)
+            < 0)
           return -1;
         eng->nbfd[i] += 1;
       }
@@ -245,8 +246,19 @@ ssize_t dns_send(int socket, char *pck, size_t size)
 
 void close_serv(dns_engine *engine)
 {
-  for (int i=0; i < engine->nbip; ++i)
+  for (int i=0; i < engine->nbip; ++i){
+    for (int j=0; j < engine->nbfd[i]; ++j){
+      epoll_ctl(engine->epfds[i], EPOLL_CTL_DEL, engine->events[i][j].data.fd,
+                engine->ep_events + i);
+      close(engine->events[i][j].data.fd);
+    }
+    free(engine->events[i]);
     close(engine->sockets[i]);
+  }
+  free(engine->events);
+  free(engine->ep_events);
+  free(engine->epfds);
+  free(engine->nbfd);
   free(engine->sockets);
   engine->sockets = NULL;
   free(engine->ip);

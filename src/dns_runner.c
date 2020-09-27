@@ -29,3 +29,11 @@ dns_engine* dns_init(char *filename, uint16_t port, char *ip)
 
   return engine;
 }
+
+void dns_quit(dns_engine *engine)
+{
+  if (!engine)
+    return;
+  close_serv(engine);
+  free(engine);
+}
