@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "dns.h"
+#include "request_parser.h"
 
 
 void *response_forge(dns *ans); // struct -> packet (void*)
