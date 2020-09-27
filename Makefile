@@ -10,7 +10,7 @@ VPATH+= src/request_to_response/
 EXEC = dns
 # FILES
 SRC= dns.c
-SRC+= analyser.c request_checker.c request_processer.c
+SRC+= analyser.c request_checker.c request_processer.c find_zone.c
 OBJS= ${SRC:.c=.o}
 
 all: ${EXEC}

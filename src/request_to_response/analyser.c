@@ -1,6 +1,6 @@
 #include "analyser.h"
 
-dns *anayser(dns *request){
+dns *anayser(dns *request, zone *soa, bin_tree *tree){
 	if (request_checker(request) == 0)
 	{
 		// Invalid request
@@ -10,11 +10,7 @@ dns *anayser(dns *request){
 	else
 	{
 		// valid request
-		return make_valid_response(request);
+		return make_valid_response(request, soa, tree);
 	}
 	return request;
-}
-
-int func(){
-	return 3;
 }

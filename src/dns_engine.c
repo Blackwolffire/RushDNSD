@@ -45,7 +45,7 @@ bin_tree *create_tree(FILE *file)
 int add_to_tree(zone *new_zone, bin_tree *tree)
 {
     char **array;
-    array[0] = strtok(new_zone->name, ".");
+    *(array[0]) = strtok(new_zone->name, ".");
     int i = 1;
     while (1)
     {

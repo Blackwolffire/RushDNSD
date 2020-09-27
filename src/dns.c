@@ -2,5 +2,5 @@
 #include "analyser.h"
 
 int main(void){
-	return func();
+	return 0;
 }

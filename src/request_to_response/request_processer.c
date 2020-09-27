@@ -1,11 +1,5 @@
 #include "analyser.h"
 
-// finds zones corresponding to the request
-zone *find_zone(char *name, uint16_t type){
-	name = name;
-	type = type;
-	return NULL;
-}
 
 uint16_t get_data_size(uint16_t type, void *data){
 	if (type == SOA_type){
@@ -90,12 +84,117 @@ question *copy_questions(question *quest, uint16_t question_nb){
 	}
 	return questions_cpy;
 }
+int check_unknown_zone(char *soa, char *qname){
+	size_t soa_size = strlen(soa);
+	size_t qname_size = strlen(qname);
+	if (soa_size < qname_size)
+		return 1;
+	return strcmp(soa, qname + (qname_size - soa_size));
+}
 
-dns *make_response(dns *request, dns *response){
+int is_type_supported(uint16_t qtype){
+	int res = 1;
+	switch(qtype){
+		case SOA_type :
+		       break;	
+		case A_type :
+		       break;	
+		case AAAA_type :
+		       break;	
+		case CNAME_type :
+		       break;	
+		case TXT_type :
+		       break;	
+		default :
+		       res = 0;
+		       break;
+	}
+	return res;
+}
 
-	//uint16_t an_count = 0;
-	//uint16_t ns_count = 0;
-	//uint16_t ar_count = 0;
+int is_class_supported(uint16_t class){
+	if (class == 1) // class IN
+		return 1;
+	return 0;
+}
+
+
+uint16_t add_an(dns *response, zone *zone, uint16_t an_max){
+
+	response->head.ancount += 1;
+	uint16_t an_count = response->head.ancount;
+	if (an_count >= an_max){
+		an_max *= 2;
+	 	answer * realloc_answer = realloc(response->answer, sizeof(answer) * an_max);
+		if (realloc_answer == NULL){
+			response->head.ancount -= 1;
+			return an_max / 2;
+		}
+		response->answer = realloc_answer; 
+	}
+
+	answer *new_answer = (response->answer) + an_count;
+	new_answer->rname = zone->name;
+	new_answer->rtype = zone->type;
+	new_answer->rclass = 1;
+	new_answer->ttl = zone->ttl;
+	new_answer->rdlen = get_data_size(zone->type, zone->data);
+	new_answer->rdata = zone->data;
+
+	return an_max;
+}
+
+uint16_t add_ns(dns *response, zone *zone, uint16_t ns_max){
+
+	response->head.nscount += 1;
+	uint16_t ns_count = response->head.nscount;
+	if (ns_count >= ns_max){
+		ns_max *= 2;
+	 	answer * realloc_answer = realloc(response->authority, sizeof(answer) * ns_max);
+		if (realloc_answer == NULL){
+			response->head.nscount -= 1;
+			return ns_max / 2;
+		}
+		response->authority = realloc_answer; 
+	}
+
+	answer *new_answer = (response->authority) + ns_count;
+	new_answer->rname = zone->name;
+	new_answer->rtype = zone->type;
+	new_answer->rclass = 1;
+	new_answer->ttl = zone->ttl;
+	new_answer->rdlen = get_data_size(zone->type, zone->data);
+	new_answer->rdata = zone->data;
+
+	return ns_max;
+}
+
+uint16_t add_ar(dns *response, zone *zone, uint16_t ar_max){
+
+	response->head.arcount += 1;
+	uint16_t ar_count = response->head.arcount;
+	if (ar_count >= ar_max){
+		ar_max *= 2;
+	 	answer * realloc_answer = realloc(response->additional, sizeof(answer) * ar_max);
+		if (realloc_answer == NULL){
+			response->head.arcount -= 1;
+			return ar_max / 2;
+		}
+		response->additional = realloc_answer; 
+	}
+
+	answer *new_answer = (response->additional) + ar_count;
+	new_answer->rname = zone->name;
+	new_answer->rtype = zone->type;
+	new_answer->rclass = 1;
+	new_answer->ttl = zone->ttl;
+	new_answer->rdlen = get_data_size(zone->type, zone->data);
+	new_answer->rdata = zone->data;
+
+	return ar_max;
+}
+
+dns *make_response(dns *request, dns *response, zone *soa, bin_tree *tree){
 
 	uint16_t an_max = 4;
 	uint16_t ns_max = 4;
@@ -123,15 +222,56 @@ dns *make_response(dns *request, dns *response){
 	}
 	
 	for (uint16_t i = 0; i < request->head.qdcount; i++){
-		question *quest = (request->quest) + i;	
-		zone *zone = find_zone(quest->qname, quest->qtype);	
-		if (zone != NULL){
-			// set answer depending on type (Nom present/type qbsent)
+		question *quest = (request->quest) + i;
+		uint16_t qtype = quest->qtype;
+		uint16_t qclass = quest->qclass;
+		if (is_type_supported(qtype) == 0){
+			set_rcode_flag(response, 4); // Set NOTIMP not implemented
+			break;
 		}
-		else {
-			// set answer to type depending (Non existant/ Emtynon terminal/ zone inconnue)
+		if (is_class_supported(qclass) == 0){
+			set_rcode_flag(response, 4); // Set NOTIMP not implemented
+			break;
+		}
+
+
+		if (check_unknown_zone(soa->name, request->quest->qname) != 0)
+		{
+			// Zone is unknown
+			set_rcode_flag(response, 5); // Set to REFFUSED
+			break;
+		}
+
+		zone_found zone = find_zone(tree, quest->qname, quest->qtype);
+		if (zone.found != NULL){
+			// Known zone and type
+			set_rcode_flag(response, 0); // Set to NOERROR
+			// ANSWER SECTION 
+			an_max = add_an(response, zone.found, an_max);
+
+		}
+		else if (zone.found_no_type == 1){
+			// zone found but not type
+			// AUTHORITY SECTION
+			set_rcode_flag(response, 0); // Set to NOERROR
+			ns_max = add_ns(response, zone.found, ns_max);
+		}
+		else if (zone.found_no_terminal == 1) {
+			// Emty non terminal
+			// AUTHORITY SECTION
+			set_rcode_flag(response, 0); // Set to NOERROR
+			ns_max = add_ns(response, zone.found, ns_max);
+		}
+		else{
+			// Not found
+			// AUTHORITY SECTION
+			set_rcode_flag(response, 3); // Set to NXDOMAIN	
+			ns_max = add_ns(response, zone.found, ns_max);
+
 		}
 	}
+
+
 	// set header falgs
 	//
 	// rcode :
@@ -156,7 +296,7 @@ dns *make_response(dns *request, dns *response){
 }
 
 
-dns *make_valid_response(dns *request){	
+dns *make_valid_response(dns *request, zone *soa, bin_tree *tree){	
 
 	// creqte response
 	dns *response = malloc(sizeof(dns));
@@ -173,7 +313,7 @@ dns *make_valid_response(dns *request){
 	response->quest = questions;
 
 	// fill responce and headers 
-	if(make_response(request, response) == NULL){
+	if(make_response(request, response, soa, tree) == NULL){
 		free(response->quest);
 		free(response->answer);
 		free(response->authority);
