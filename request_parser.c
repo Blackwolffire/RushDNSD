@@ -127,6 +127,7 @@ dns *request_parser(void *request_void, int buffer_size)
 }
 
 //display a dns struct
+/*
 void printer(dns *dns_paquet)
 {
 	printf("header block :\n");
@@ -163,6 +164,7 @@ void printer(dns *dns_paquet)
 	 printf("  rdata : %s\n", dns_paquet->additional->rdata);
 	free_dns_struct(dns_paquet);
 }
+*/
 
 //free answer, authority and additional struct
 void free_repete(answer *answer_free, int count)
