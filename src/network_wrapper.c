@@ -5,7 +5,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <errno.h>
+#include <stdio.h>
 #include "network_wrapper.h"
 
 int check_ip(char *ip)
@@ -110,7 +111,7 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
 
   struct epoll_event **events = calloc(nbip, sizeof(struct epoll_event*));
 
-  int ipcheck, domain, error = 0; //, flags;
+  int ipcheck, domain, error = 0, flags;
   struct sockaddr_in addr;
   struct sockaddr_in6 addr6;
   addr.sin_port = htons(port);
@@ -118,13 +119,13 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
   {
     ipcheck = check_ip(engine->ip[i]);
     domain = ipcheck == 1? AF_INET : AF_INET6;
-    sockets[i] = socket(domain, SOCK_STREAM, 0);
+    sockets[i] = socket(domain, SOCK_DGRAM, 0);
     /*if (setsockopt(sockets[i], SOL_SOCKET, SO_REUSEADDR, &flags,
                    sizeof(flags)) == -1){
       error = 1;
       break;
-    }*/
-    //unblock_sock(sockets[i]);
+    }
+    unblock_sock(sockets[i]);*/
     if (domain == AF_INET){
       bzero(&addr, sizeof(addr));
       addr.sin_family = domain;
@@ -138,6 +139,7 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
     }
     if (domain == AF_INET){
       if (bind(sockets[i], (struct sockaddr*)&addr, sizeof(addr))){
+          perror("lol\n");
         error = 1;
         break;
       }
