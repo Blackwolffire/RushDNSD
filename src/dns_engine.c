@@ -6,7 +6,7 @@
 #include "my_libc.h"
 #include "my_free.h"
 #include "dns_engine.h"
-
+#include "collector.h"
 
 int error_file(char *msg)
 {

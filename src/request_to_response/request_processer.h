@@ -1,8 +1,6 @@
 #pragma once
 #include "analyser.h"
 
-// Finds zones corresponding to the request.
-zone *find_zone(char *name, uint16_t type);
 
 // Gets the data type depending on type.
 uint16_t get_data_size(uint16_t type, void *data);
@@ -29,9 +27,9 @@ question *copy_questions(question *quest, uint16_t question_nb);
 void free_questions(question *questions, uint16_t question_nb);
 
 // Makes dns responses in dns_response depending on dns_request 
-dns *make_response(dns *request, dns *response);
+dns *make_response(dns *request, dns *response, zone *soa, bin_tree *tree);
 
 // Make avaidresponse
-dns *make_valid_response(dns *request);
+dns *make_valid_response(dns *request, zone *soa, bin_tree *tree);
 
 // Make response fonction for theother  type of responses (errors).

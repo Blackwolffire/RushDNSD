@@ -1,7 +1,7 @@
 #include "response_forger.h"
 
 
-void *response_forge(dns *ans, size_t *size) {
+void *response_forge(dns *ans, ssize_t *size) {
     int total_len = sizeof(dns_header); // used to compute the size of the memory to allocate
     total_len += compute_strings_length(ans); // computes the size of the variable-length fields (string fields)
     total_len += 4 + (ans->head.ancount * 10) + (ans->head.nscount * 10) + (ans->head.arcount * 10); // computes the size of the fixed-size fields

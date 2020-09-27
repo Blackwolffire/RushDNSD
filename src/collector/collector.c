@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 #include "collector.h"
-#include "../my_libc.h"
+#include "my_libc.h"
 
 // Global linked list keeping track of all allocated resources
 struct collector *collector;
@@ -16,13 +16,14 @@ static bool collector_empty(){
 
 // Prints all pointers contained in collector
 // Used for debug purposes
+/*
 static void collector_print(){
     if (collector_empty())
         return;
     for (struct collector_node *ride = collector->first; ride; ride = ride->next)
         printf("ptr:\t%p\n", ride->ptr);
 }
-
+*/
 // Init global collector
 void collector_init(){
     collector = my_malloc(sizeof(struct collector));
