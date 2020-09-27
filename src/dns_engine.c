@@ -14,17 +14,17 @@ int error_file(char *msg)
     _exit(12);
 }
 
-bin_tree *load_zone(const char *filename)
+bin_tree *load_zone(dns_engine *engine, const char *filename)
 {
     FILE *file = fopen(filename, "r");
     if (!file)
         error_file("Impossible d'ouvrir le fichier");
-    bin_tree *tree_zone = create_tree(file);
+    bin_tree *tree_zone = create_tree(file, engine);
     fclose(file);
     return tree_zone;
 }
 
-bin_tree *create_tree(FILE *file)
+bin_tree *create_tree(FILE *file, dns_engine *engine)
 {
     //escape ; attention
     int SOA = 0;
@@ -38,7 +38,10 @@ bin_tree *create_tree(FILE *file)
         if (!current_zone)
             continue;
         if (current_zone->type == SOA_type)
+        {
             SOA++;
+            engine->soa_zone = current_zone;
+        }
         if (SOA > 1)
             error_file("Multiple SOA registration");
         tree = add_to_tree(current_zone, tree);
@@ -216,10 +219,4 @@ SOA_data *get_soa_struct(char *word)
         return NULL;
     }
     return soa;
-}
-
-int main(){
-    bin_tree *arbre = load_zone("test_file");
-    free_bin_tree(arbre);
-    return 0;
 }
