@@ -10,10 +10,10 @@ VPATH= src/
 VPATH+= src/request_to_response/
 VPATH+= src/collector/ src/catch
 
-EXEC = main #server_dns
+EXEC = server_dns
 
 # FILES
-SRC= main.c #server_dns.c
+SRC= server_dns.c
 SRC+= analyser.c request_checker.c request_processer.c find_zone.c
 SRC+= dns_runner.c network_wrapper.c
 SRC+= dns_engine.c my_free.c my_libc.c
