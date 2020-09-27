@@ -7,8 +7,8 @@
 
 void *response_forge(dns *ans); // struct -> packet (void*)
 int compute_strings_length(dns *ans);
-void *forge_header(dns *ans, void *h);
-void *forge_quest(dns *ans, void *q);
-void *forge_answer(dns *ans, void *a);
-void *forge_authority(dns *ans, void *au);
-void *forge_additional(dns *ans, void *ad);
+void *forge_header(dns *ans, void *header);
+void *forge_quest(dns *ans, void *quest);
+void *forge_answer(dns *ans, void *answ);
+void *forge_authority(dns *ans, void *auth);
+void *forge_additional(dns *ans, void *addit);

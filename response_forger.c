@@ -81,17 +81,17 @@ int compute_strings_length(dns *ans) {
 
 void *forge_header(dns *ans, void *header) {
     uint16_t *h_16b = header;
-    *h_16b = ans->head.id;
+    *h_16b = htons(ans->head.id);
     h_16b++;
-    *h_16b = ans->head.flags;
+    *h_16b = htons(ans->head.flags);
     h_16b++;
-    *h_16b = ans->head.qdcount;
+    *h_16b = htons(ans->head.qdcount);
     h_16b++;
-    *h_16b = ans->head.ancount;
+    *h_16b = htons(ans->head.ancount);
     h_16b++;
-    *h_16b = ans->head.nscount;
+    *h_16b = htons(ans->head.nscount);
     h_16b++;
-    *h_16b = ans->head.arcount;
+    *h_16b = htons(ans->head.arcount);
     h_16b++;
 
     return h_16b;
@@ -109,9 +109,9 @@ void *forge_quest(dns *ans, void *quest) {
     }
 
     uint16_t *q_16b = (uint16_t*)q;
-    *q_16b = ans->quest->qtype;
+    *q_16b = htons(ans->quest->qtype);
     q_16b++;
-    *q_16b = ans->quest->qclass;
+    *q_16b = htons(ans->quest->qclass);
     q_16b++;
 
     return q_16b;
@@ -131,17 +131,17 @@ void *forge_answer(dns *ans, void *answ) {
         }
 
         uint16_t *a_16b = (uint16_t*)a;
-        *a_16b = answer_index->rtype;
+        *a_16b = htons(answer_index->rtype);
         a_16b++;
-        *a_16b = answer_index->rclass;
+        *a_16b = htons(answer_index->rclass);
         a_16b++;
 
         uint32_t *a_32b = (uint32_t*)a_16b;
-        *a_32b = answer_index->ttl;
+        *a_32b = htonl(answer_index->ttl);
         a_32b++;
 
         a_16b = (uint16_t*)a_32b;
-        *a_16b = answer_index->rdlen;
+        *a_16b = htons(answer_index->rdlen);
         a_16b++;
 
         a = (char*)a_16b;
@@ -172,17 +172,17 @@ void *forge_authority(dns *ans, void *auth) {
         }
 
         uint16_t *au_16b = (uint16_t*)au;
-        *au_16b = authority_index->rtype;
+        *au_16b = htons(authority_index->rtype);
         au_16b++;
-        *au_16b = authority_index->rclass;
+        *au_16b = htons(authority_index->rclass);
         au_16b++;
 
         uint32_t *au_32b = (uint32_t*)au_16b;
-        *au_32b = authority_index->ttl;
+        *au_32b = htonl(authority_index->ttl);
         au_32b++;
 
         au_16b = (uint16_t*)au_32b;
-        *au_16b = authority_index->rdlen;
+        *au_16b = htons(authority_index->rdlen);
         au_16b++;
 
         au = (char*)au_16b;
@@ -213,17 +213,17 @@ void *forge_additional(dns *ans, void *addit) {
         }
 
         uint16_t *ad_16b = (uint16_t*)ad;
-        *ad_16b = additional_index->rtype;
+        *ad_16b = htons(additional_index->rtype);
         ad_16b++;
-        *ad_16b = additional_index->rclass;
+        *ad_16b = htons(additional_index->rclass);
         ad_16b++;
 
         uint32_t *ad_32b = (uint32_t*)ad_16b;
-        *ad_32b = additional_index->ttl;
+        *ad_32b = htonl(additional_index->ttl);
         ad_32b++;
 
         ad_16b = (uint16_t*)ad_32b;
-        *ad_16b = additional_index->rdlen;
+        *ad_16b = htons(additional_index->rdlen);
         ad_16b++;
 
         ad = (char*)ad_16b;

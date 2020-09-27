@@ -1,6 +1,8 @@
 #pragma once
 #include <stddef.h>
 #include <stdint.h>
+#include <arpa/inet.h>
+
 
 typedef struct question question;
 struct question {
