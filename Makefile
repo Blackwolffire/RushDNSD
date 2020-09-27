@@ -1,6 +1,6 @@
 # Compiler and flags
 CC=gcc
-CFLAGS= -std=c99 -Wall -Wextra -pedantic -g
+CFLAGS= -std=c99 -Wall -Wextra -Werror -pedantic -g
 CFLAGS+= -Isrc
 CFLAGS+= -Isrc/request_to_response
 CFLAGS+= -Isrc/collector -Isrc/catch

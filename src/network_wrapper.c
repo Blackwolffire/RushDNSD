@@ -111,7 +111,7 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
 
   struct epoll_event **events = calloc(nbip, sizeof(struct epoll_event*));
 
-  int ipcheck, domain, error = 0, flags;
+  int ipcheck, domain, error = 0;//, flags;
   struct sockaddr_in addr;
   struct sockaddr_in6 addr6;
   addr.sin_port = htons(port);
@@ -119,7 +119,7 @@ dns_engine* init_serv(dns_engine *engine, char *ip, uint16_t port)
   {
     ipcheck = check_ip(engine->ip[i]);
     domain = ipcheck == 1? AF_INET : AF_INET6;
-    sockets[i] = socket(domain, SOCK_DGRAM, 0);
+    sockets[i] = socket(domain, SOCK_STREAM, 0);
     /*if (setsockopt(sockets[i], SOL_SOCKET, SO_REUSEADDR, &flags,
                    sizeof(flags)) == -1){
       error = 1;
