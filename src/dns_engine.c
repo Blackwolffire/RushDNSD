@@ -1,4 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
+
+#include <arpa/inet.h>
+
 #include "dns.h"
 #include "my_libc.h"
 #include "my_free.h"
@@ -122,6 +125,11 @@ zone *get_zone(char *line)
     int i = 0;
     while ((tmp_word = strtok(NULL, ";")) != NULL)
     {
+        while (tmp_word[strlen(tmp_word)-1] == '\\')
+        {
+            tmp_word[strlen(tmp_word)] = ';';
+            strtok(NULL, ";");
+        }
         if (i == 0)
             new_zone->type = (short)strtol(tmp_word, NULL, 10);
         else if (i == 1)
@@ -147,7 +155,25 @@ zone *get_zone(char *line)
         dprintf(STDERR_FILENO, "File : a lign is incorrect and not taken into account\n");
         return NULL;
     }
+    if (new_zone->type == A_type || new_zone->type == AAAA_type)
+        new_zone = check_new_zone(new_zone);
 
+    return new_zone;
+}
+
+zone *check_new_zone(zone *new_zone)
+{
+    void *tmp = {0};
+    if (new_zone->type == A_type)
+    {
+        if (inet_pton(AF_INET, new_zone->data, tmp) != 1)
+            return NULL;
+    }
+    else
+    {
+        if (inet_pton(AF_INET6, new_zone->data, tmp) != 1)
+            return NULL;
+    }
     return new_zone;
 }
 

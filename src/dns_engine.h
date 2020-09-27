@@ -64,6 +64,7 @@ bin_tree *create_tree(FILE *file);
 bin_tree *add_to_tree(zone *new_zone, bin_tree *tree);
 zone *get_zone(char *line);
 SOA_data *get_soa_struct(char *word);
+zone *check_new_zone(zone *new_zone);
 
 //dns_engine *dns_init(char *filename, uint16_t port, char *ip); // ip séparées
                                                               // par virgule
