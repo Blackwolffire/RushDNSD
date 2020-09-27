@@ -68,6 +68,23 @@ void collector_free(void *ptr){
 }
 
 
+// Allocate a new size for an existing resource, and free its previous reference
+void *collector_realloc(void *ptr, size_t size){
+    if (!size){
+    	collector_free(ptr);
+        return NULL;
+    }
+    if (!ptr)
+        return collector_malloc(size);
+
+    void *new_ptr = realloc(ptr, size);
+    for (struct collector_node *ride = collector->first; ride; ride = ride->next)
+        if (ride->ptr == ptr)
+	    ride->ptr = new_ptr;
+    return new_ptr;
+}
+
+
 // Free every resource referenced in the collector, and the collector itself
 void collector_exit(){
     for (struct collector_node *ride = collector->first; ride;){

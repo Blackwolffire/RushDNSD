@@ -29,5 +29,8 @@ void *collector_malloc(size_t size);
 // free() wrapper to free resource and remove its reference from the collector
 void collector_free(void *ptr);
 
+// Allocate a new size for an existing resource, and free its previous reference
+void *collector_realloc(void *ptr, size_t size);
+
 // Free every resource referenced in the collector, and the collector itself
 void collector_exit();
