@@ -59,14 +59,9 @@ struct SOA_data {
 
 
 int error_file(char *msg);
-bin_tree *load_zone(const char *filename);
-bin_tree *create_tree(FILE *file);
-int add_to_tree(zone *new_zone, bin_tree *tree);
+bin_tree *load_zone(dns_engine *engine, const char *filename);
+bin_tree *create_tree(FILE *file, dns_engine *engine);
+bin_tree *add_to_tree(zone *new_zone, bin_tree *tree);
 zone *get_zone(char *line);
 SOA_data *get_soa_struct(char *word);
-
-//dns_engine *dns_init(char *filename, uint16_t port, char *ip); // ip séparées
-                                                              // par virgule
-//void *load_zone(char *filename); // TODO struct zone à mettre dans dnsengine
-//int dns_run(dns_engine *engine); // fork?NON! thread
-//void dns_quit(dns_engine *engine); //TODO struct dns_engine + dns_zone
+zone *check_new_zone(zone *new_zone);
